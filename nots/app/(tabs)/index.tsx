@@ -4,38 +4,23 @@ import { Text, View } from '@/components/Themed';
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import AddAssignmentForm from '@/components/AddAssignmentForm';
-
-interface Assignment {
-  id: number;
-  title: string;
-  description: string;
-  due_date: string;
-}
+import { Assignments, fetchAssignments } from '@/lib/api';
 
 export default function TabOneScreen() {
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [assignments, setAssignments] = useState<Assignments>([]);
 
   useEffect(() => {
-    const fetchAssignments = async () => {
-      const { data, error } = await supabase.from<Assignment>("assignments").select("*").order("created_at", { ascending: false });
-
-      if (error) {
-        console.log(error);
-      } else {
-        setAssignments(data ?? []);
-      }
-    };
-
-    fetchAssignments();
+    fetchAssignments().then((data) => {
+      setAssignments(data);
+    })
   }, []);
 
   const handleSubmit = async (title: string, description: string, due_date: Date) => {
-    const { data, error } = await supabase.from("assignments").insert([{ title, description, due_date }]).select();
+    const { data, error } = await supabase.from("assignments").insert({ title, description, due_date: due_date.toISOString() }).select();
     if (error) {
       console.log(error);
       alert("Error al añadir tarea");
     } else {
-      // Actualizar la lista de asignaciones
       setAssignments([data[0], ...assignments]);
       alert("Tarea añadida");
     }

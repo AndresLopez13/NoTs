@@ -11,8 +11,23 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [error, setError] = useState('');
 
   const handleAddAssignment = () => {
+    if (!title || !description) {
+      let errorMessage = '';
+      if (!title && !description) {
+        errorMessage = 'Todos los campos son obligatorios';
+      } else if (!title) {
+        errorMessage = 'El título es obligatorio';
+      } else if (!description) {
+        errorMessage = 'La descripción es obligatoria';
+      }
+      setError(errorMessage);
+      return;
+    }
+
+    setError('');
     onSubmit(title, description, dueDate);
     setTitle('');
     setDescription('');
@@ -32,6 +47,7 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Añadir tarea</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
         style={styles.input}
         onChangeText={setTitle}
@@ -70,6 +86,10 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 16,
+  },
+  error: {
+    color: 'red',
+    marginBottom: 10,
   },
   title: {
     fontSize: 20,
