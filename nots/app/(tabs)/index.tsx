@@ -29,7 +29,6 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <AddAssignmentForm onSubmit={handleSubmit} />
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <FlatList
         data={assignments}
         keyExtractor={(item) => item.id.toString()}
