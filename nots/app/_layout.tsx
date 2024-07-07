@@ -3,10 +3,12 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
+import AuthScreen from './screens/AuthScreen';
+import { AuthProvider, useUserInfo } from '@/lib/userContext';
 
 const darkTheme = {
   ...DarkTheme,
@@ -58,18 +60,27 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { session } = useUserInfo();
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? darkTheme : lightTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+      {session ? (
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+      ) : (
+        <AuthScreen />
+      )}
     </ThemeProvider>
   );
 }

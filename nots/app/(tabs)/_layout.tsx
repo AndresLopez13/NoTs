@@ -24,6 +24,7 @@ export default function TabLayout() {
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        headerShadowVisible: false,
       }}>
       <Tabs.Screen
         name="index"
@@ -34,9 +35,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="signOut"
         options={{
-          title: 'Otros',
+          title: 'Cerrar Sesión',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primaryColor,
         }}
