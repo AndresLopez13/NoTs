@@ -1,9 +1,7 @@
-import { StyleSheet, TextInput, Button, Platform } from 'react-native';
-import { Text, View } from './Themed';
+import { StyleSheet, Platform } from 'react-native';
+import { Text, View, TextInput, Button } from './Themed';
 import { useState } from 'react';
-import { useColorScheme } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import Colors from '@/constants/Colors';
 
 interface Props {
   onSubmit: (title: string, description: string, due_date: Date) => void;
@@ -15,9 +13,6 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
   const [dueDate, setDueDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [error, setError] = useState('');
-
-  const colorScheme = useColorScheme();
-  const textColor = colorScheme === 'dark' ? Colors.dark.text : Colors.light.text;
 
   const handleAddAssignment = () => {
     if (!title || !description) {
@@ -55,19 +50,16 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
       <Text style={styles.title}>Añadir tarea</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
-        style={[styles.input, { color: textColor }]}
+        style={styles.input}
         onChangeText={setTitle}
         value={title}
         placeholder="Titulo de la tarea"
-        placeholderTextColor={'#666'}
-        selectionColor={'#666'}
       />
       <TextInput
-        style={[styles.input, { color: textColor }]}
+        style={styles.input}
         onChangeText={setDescription}
         value={description}
         placeholder="Descripción de la tarea"
-        placeholderTextColor={'#666'}
       />
       <View>
         <Text>Fecha de vencimiento: {formatDate(dueDate)}</Text>
@@ -111,7 +103,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 8,
     marginVertical: 5,
-    color: '#fff',
   },
   separator: {
     marginVertical: 10,
