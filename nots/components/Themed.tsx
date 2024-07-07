@@ -3,7 +3,7 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import { Text as DefaultText, View as DefaultView } from 'react-native';
+import { Text as DefaultText, View as DefaultView, TextInput as DefaultTextInput, Button as DefaultButton } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from './useColorScheme';
@@ -15,6 +15,8 @@ type ThemeProps = {
 
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
+export type TextInput = ThemeProps & DefaultTextInput['props'];
+export type Button = ThemeProps & DefaultButton['props'];
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -42,4 +44,20 @@ export function View(props: ViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+}
+
+export function TextInput(props: TextInput) {
+  const { style, lightColor, darkColor, ...otherProps } = props;
+  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const placeholderTextColor = useThemeColor({ light: "#6b7280", dark: "#9ca3af" }, 'text');
+  const primary = useThemeColor({}, "primaryColor");
+  return <DefaultTextInput style={[{ color }, style]}
+    placeholderTextColor={placeholderTextColor} 
+    cursorColor={primary}
+    {...otherProps} />;
+}
+
+export function Button(props: DefaultButton["props"]) {
+  const color = useThemeColor({}, "primaryColor");
+  return <DefaultButton color={color} {...props} />;
 }
