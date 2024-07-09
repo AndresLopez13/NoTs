@@ -28,7 +28,6 @@ export default function AuthForm({
   loading,
 }: AuthFormProps) {
   const [mode, setMode] = useState<'login' | 'signUp'>('login');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -36,6 +35,7 @@ export default function AuthForm({
     if (mode === 'login') {
       onLogin({ email, password });
     } else {
+      const username = email.split('@')[0];
       onSignUp({ email, password, options: { data: { username } } });
     }
   };
@@ -59,15 +59,6 @@ export default function AuthForm({
                   ? 'Inicia sesión en tu cuenta'
                   : 'Crea una cuenta'}
               </Text>
-              {mode === 'signUp' && (
-                <View style={styles.input}>
-                  <TextInput
-                    placeholder="Nombre de usuario"
-                    value={username}
-                    onChangeText={setUsername}
-                  />
-                </View>
-              )}
               <View style={styles.input}>
                 <TextInput
                   placeholder="Correo"
