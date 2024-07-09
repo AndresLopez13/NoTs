@@ -28,7 +28,6 @@ export default function AuthForm({
   loading,
 }: AuthFormProps) {
   const [mode, setMode] = useState<'login' | 'signUp'>('login');
-  const [username] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -36,6 +35,7 @@ export default function AuthForm({
     if (mode === 'login') {
       onLogin({ email, password });
     } else {
+      const username = email.split('@')[0];
       onSignUp({ email, password, options: { data: { username } } });
     }
   };
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   inner: {
     padding: 16,
     flex: 1,
-    marginTop: 64,
+    paddingTop: 64,
   },
   logo: {
     width: 180,

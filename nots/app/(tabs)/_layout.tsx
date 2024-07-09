@@ -30,15 +30,15 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Tareas',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primaryColor,
         }}
       />
       <Tabs.Screen
-        name="signOut"
+        name="profile"
         options={{
-          title: 'Cerrar Sesión',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Perfil',
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primaryColor,
         }}
       />
