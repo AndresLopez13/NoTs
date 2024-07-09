@@ -28,7 +28,7 @@ export default function AuthForm({
   loading,
 }: AuthFormProps) {
   const [mode, setMode] = useState<'login' | 'signUp'>('login');
-  const [username] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -59,6 +59,15 @@ export default function AuthForm({
                   ? 'Inicia sesión en tu cuenta'
                   : 'Crea una cuenta'}
               </Text>
+              {mode === 'signUp' && (
+                <View style={styles.input}>
+                  <TextInput
+                    placeholder="Nombre de usuario"
+                    value={username}
+                    onChangeText={setUsername}
+                  />
+                </View>
+              )}
               <View style={styles.input}>
                 <TextInput
                   placeholder="Correo"
@@ -114,7 +123,7 @@ const styles = StyleSheet.create({
   inner: {
     padding: 16,
     flex: 1,
-    marginTop: 64,
+    paddingTop: 64,
   },
   logo: {
     width: 180,
