@@ -1,6 +1,6 @@
 import 'react-native-url-polyfill/auto';
 import { Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { Text, useThemeColor, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 
 interface MenuItem {
@@ -11,6 +11,9 @@ interface MenuItem {
 
 export default function MenuScreen() {
   const router = useRouter();
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const menuItemBackgroundColor = useThemeColor({}, 'card');
 
   const menuItems: MenuItem[] = [
     { title: 'Asignaturas', image: require('../../assets/images/menu/subjects.png'), route: '/screens/subjects' },
@@ -23,16 +26,16 @@ export default function MenuScreen() {
 
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <TouchableOpacity
-      style={styles.menuItem}
+      style={[styles.menuItem, { backgroundColor: menuItemBackgroundColor }]}
       onPress={() => router.push(item.route)}
     >
       <Image source={item.image} style={styles.menuImage} />
-      <Text style={styles.menuText}>{item.title}</Text>
+      <Text style={[styles.menuText, { color: textColor }]}>{item.title}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <FlatList
         data={menuItems}
         renderItem={renderMenuItem}
@@ -46,7 +49,6 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   listContainer: {
     padding: 16,
@@ -56,7 +58,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     marginVertical: 8,
-    backgroundColor: '#f0f0f0',
     borderRadius: 8,
   },
   menuImage: {
