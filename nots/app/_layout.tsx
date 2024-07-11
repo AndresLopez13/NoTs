@@ -1,10 +1,10 @@
+import 'react-native-url-polyfill/auto';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
-import 'react-native-reanimated';
+import { useEffect } from 'react';
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import AuthScreen from './screens/AuthScreen';
@@ -77,6 +77,12 @@ function RootLayoutNav() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="screens/subjects" options={{ title: 'Asignaturas' }} />
+          <Stack.Screen name="screens/reminders" options={{ title: 'Recordatorios' }} />
+          <Stack.Screen name="screens/notes" options={{ title: 'Apuntes' }} />
+          <Stack.Screen name="screens/assignments" options={{ title: 'Tareas' }} />
+          <Stack.Screen name="screens/exams" options={{ title: 'Pruebas' }} />
+          <Stack.Screen name="screens/schedule" options={{ title: 'Horario' }} />
         </Stack>
       ) : (
         <AuthScreen />
