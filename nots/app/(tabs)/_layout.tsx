@@ -29,7 +29,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tareas',
+          title: 'Menú',
           tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primaryColor,
         }}
