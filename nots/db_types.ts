@@ -16,6 +16,7 @@ export type Database = {
           due_date: string
           id: string
           title: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -23,6 +24,7 @@ export type Database = {
           due_date: string
           id?: string
           title: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -30,8 +32,17 @@ export type Database = {
           due_date?: string
           id?: string
           title?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notes: {
         Row: {
@@ -51,6 +62,71 @@ export type Database = {
           description?: string
           id?: string
           title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subject: {
+        Row: {
+          classroom: string
+          created_at: string
+          days: string
+          id: string
+          name: string
+          nrc: number
+          start_time: string
+        }
+        Insert: {
+          classroom: string
+          created_at?: string
+          days: string
+          id?: string
+          name: string
+          nrc: number
+          start_time: string
+        }
+        Update: {
+          classroom?: string
+          created_at?: string
+          days?: string
+          id?: string
+          name?: string
+          nrc?: number
+          start_time?: string
         }
         Relationships: []
       }
