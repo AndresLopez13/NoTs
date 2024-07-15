@@ -11,4 +11,19 @@ export const fetchAssignments = async () => {
   }
 };
 
+export const fetchSubjects = async () => {
+  const { data, error } = await supabase
+    .from("subject")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.log(error);
+    return [];
+  } else {
+    return data;
+  }
+};
+
 export type Assignments = Awaited<ReturnType<typeof fetchAssignments>>;
+export type Subjects = Awaited<ReturnType<typeof fetchSubjects>>;
