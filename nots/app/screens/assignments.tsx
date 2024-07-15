@@ -1,10 +1,10 @@
-import 'react-native-url-polyfill/auto';
-import { FlatList, StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import "react-native-url-polyfill/auto";
+import { FlatList, StyleSheet } from "react-native";
+import { Text, View } from "@/components/Themed";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
-import AddAssignmentForm from '@/components/AddAssignmentForm';
-import { Assignments, fetchAssignments } from '@/lib/api';
+import AddAssignmentForm from "@/components/AddAssignmentForm";
+import { Assignments, fetchAssignments } from "@/lib/api";
 
 export default function AssignmentScreen() {
   const [assignments, setAssignments] = useState<Assignments>([]);
@@ -12,11 +12,27 @@ export default function AssignmentScreen() {
   useEffect(() => {
     fetchAssignments().then((data) => {
       setAssignments(data);
-    })
+    });
   }, []);
 
-  const handleSubmit = async (title: string, description: string, due_date: Date) => {
-    const { data, error } = await supabase.from("assignments").insert({ title, description, due_date: due_date.toISOString() }).select();
+  const handleSubmit = async (
+    title: string,
+    description: string,
+    due_date: Date
+  ) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const { data, error } = await supabase
+      .from("assignments")
+      .insert({
+        title,
+        description,
+        due_date: due_date.toISOString(),
+        user_id: user?.id,
+      })
+      .select();
     if (error) {
       console.log(error);
       alert("Error al añadir tarea");
@@ -47,22 +63,22 @@ export default function AssignmentScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 16,
   },
   separator: {
     marginVertical: 30,
     height: 1,
-    width: '80%',
+    width: "80%",
   },
   item: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

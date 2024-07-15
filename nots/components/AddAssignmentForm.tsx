@@ -1,43 +1,45 @@
-import { StyleSheet, Platform } from 'react-native';
-import { Text, View, TextInput, Button } from './Themed';
-import { useState } from 'react';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { StyleSheet, Platform } from "react-native";
+import { Text, View, TextInput, Button } from "./Themed";
+import { useState } from "react";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 interface Props {
   onSubmit: (title: string, description: string, due_date: Date) => void;
 }
 
 export default function AddAssignmentForm({ onSubmit }: Props) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleAddAssignment = () => {
     if (!title || !description) {
-      let errorMessage = '';
+      let errorMessage = "";
       if (!title && !description) {
-        errorMessage = 'Todos los campos son obligatorios';
+        errorMessage = "Todos los campos son obligatorios";
       } else if (!title) {
-        errorMessage = 'El título es obligatorio';
+        errorMessage = "El título es obligatorio";
       } else if (!description) {
-        errorMessage = 'La descripción es obligatoria';
+        errorMessage = "La descripción es obligatoria";
       }
       setError(errorMessage);
       return;
     }
 
-    setError('');
+    setError("");
     onSubmit(title, description, dueDate);
-    setTitle('');
-    setDescription('');
+    setTitle("");
+    setDescription("");
     setDueDate(new Date());
   };
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate || dueDate;
-    setShowDatePicker(Platform.OS === 'ios');
+    setShowDatePicker(Platform.OS === "ios");
     setDueDate(currentDate);
   };
 
@@ -63,7 +65,10 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
       />
       <View>
         <Text>Fecha de vencimiento: {formatDate(dueDate)}</Text>
-        <Button onPress={() => setShowDatePicker(true)} title="Seleccionar fecha de vencimiento" />
+        <Button
+          onPress={() => setShowDatePicker(true)}
+          title="Seleccionar fecha de vencimiento"
+        />
         {showDatePicker && (
           <DateTimePicker
             testID="dateTimePicker"
@@ -75,31 +80,28 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
         )}
       </View>
       <View style={styles.separator} />
-      <Button
-        title="Añadir Tarea"
-        onPress={handleAddAssignment}
-      />
+      <Button title="Añadir Tarea" onPress={handleAddAssignment} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     padding: 16,
   },
   error: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     paddingBottom: 10,
   },
   input: {
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     padding: 8,
     marginVertical: 5,
@@ -107,6 +109,6 @@ const styles = StyleSheet.create({
   separator: {
     marginVertical: 10,
     height: 1,
-    width: '80%',
+    width: "80%",
   },
 });

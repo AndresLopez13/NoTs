@@ -11,15 +11,13 @@ export default function AuthScreen() {
     if (!("email" in credentials)) return;
     setLoading(true);
     const { email, password, options } = credentials;
-    const { error, data } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options,
     });
 
     if (error) Alert.alert(error.message);
-
-    console.log(data);
     setLoading(false);
   };
 
@@ -27,16 +25,14 @@ export default function AuthScreen() {
     if (!("email" in credentials)) return;
     setLoading(true);
     const { email, password } = credentials;
-    const { error, data } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
     if (error) Alert.alert(error.message);
-
-    console.log(data);
     setLoading(false);
   };
+
   return (
     <AuthForm onSignUp={handleSignup}  onLogin={handleLogin} loading={loading}/>
   )
