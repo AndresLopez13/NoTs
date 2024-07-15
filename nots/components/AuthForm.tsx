@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -8,13 +8,20 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Image,
-} from 'react-native';
-import { Button, Text, TextInput, View } from './Themed';
+  useColorScheme,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
+import { Button, Text, TextInput, View } from "./Themed";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import type {
   SignInWithPasswordCredentials,
   SignUpWithPasswordCredentials,
-} from '@supabase/supabase-js';
+} from "@supabase/supabase-js";
+
+const strongPasswordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 interface AuthFormProps {
   onSignUp: (credentials: SignUpWithPasswordCredentials) => void;
@@ -27,72 +34,123 @@ export default function AuthForm({
   onLogin,
   loading,
 }: AuthFormProps) {
-  const [mode, setMode] = useState<'login' | 'signUp'>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<"login" | "signUp">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const toggleMode = () => {
+    setMode((prevMode) => (prevMode === "login" ? "signUp" : "login"));
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
+  const validateEmail = (email) => email.includes("@espe.edu.ec");
+  const validatePassword = (password) => strongPasswordRegex.test(password);
 
   const handleSubmit = () => {
-    if (mode === 'login') {
+    if (mode === "login") {
       onLogin({ email, password });
     } else {
-      const username = email.split('@')[0];
-      onSignUp({ email, password, options: { data: { username } } });
+      if (!validateEmail(email)) {
+        Alert.alert(
+          "Correo no válido",
+          "El correo debe ser del dominio @espe.edu.ec"
+        );
+        return;
+      }
+      if (password !== confirmPassword) {
+        Alert.alert("Error de contraseña", "Las contraseñas no coinciden");
+        return;
+      }
+      if (!validatePassword(password)) {
+        Alert.alert(
+          "Contraseña débil",
+          "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, una minúscula, un número y un carácter especial"
+        );
+        return;
+      }
+      onSignUp({
+        email,
+        password,
+        options: { data: { username: email.split("@")[0] } },
+      });
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, isDarkMode && styles.containerDark]}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollView}>
             <View style={styles.inner}>
               <Image
-                source={require('../assets/images/icon.png')}
+                source={require("../assets/images/icon.png")}
                 style={styles.logo}
               />
-              <Text style={styles.title}>NoTs</Text>
-              <Text style={styles.subtitle}>
-                {mode === 'login'
-                  ? 'Inicia sesión en tu cuenta'
-                  : 'Crea una cuenta'}
+              <Text style={[styles.title, isDarkMode && styles.titleDark]}>
+                {mode === "login"
+                  ? "Inicia sesión en tu cuenta"
+                  : "Crea una cuenta"}
               </Text>
-              <View style={styles.input}>
-                <TextInput
-                  placeholder="Correo"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
+              <EmailInput
+                isDarkMode={isDarkMode}
+                placeholder="Correo electrónico"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <PasswordInput
+                isDarkMode={isDarkMode}
+                placeholder="Contraseña"
+                value={password}
+                onChangeText={setPassword}
+                showPassword={showPassword}
+                toggleShowPassword={() => setShowPassword(!showPassword)}
+              />
+              {mode === "signUp" && (
+                <PasswordInput
+                  isDarkMode={isDarkMode}
+                  placeholder="Confirmar contraseña"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  showPassword={showConfirmPassword}
+                  toggleShowPassword={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
                 />
-              </View>
-              <View style={styles.input}>
-                <TextInput
-                  placeholder="Contraseña"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={true}
-                  autoCapitalize="none"
-                />
-              </View>
-              <View style={styles.input}>
-                <Button
-                  title={mode === 'login' ? 'Iniciar sesión' : 'Registrarse'}
-                  onPress={handleSubmit}
-                  disabled={loading || !email || !password}
-                />
-              </View>
+              )}
+              <Button
+                title={mode === "login" ? "Iniciar sesión" : "Registrarse"}
+                onPress={handleSubmit}
+                disabled={loading || !email || !password}
+                style={styles.submitButton}
+              />
               <View style={styles.footer}>
-                <Text style={{ marginBottom: 8 }}>
-                  {mode === 'login'
-                    ? '¿No tienes una cuenta?'
-                    : '¿Ya tienes una cuenta?'}
+                <Text
+                  style={[
+                    styles.switchText,
+                    isDarkMode && styles.switchTextDark,
+                  ]}
+                >
+                  {mode === "login"
+                    ? "¿No tienes una cuenta?"
+                    : "¿Ya tienes una cuenta?"}
                 </Text>
                 <Button
-                  title={mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
-                  onPress={() => setMode(mode === 'login' ? 'signUp' : 'login')}
+                  title={mode === "login" ? "Regístrate" : "Inicia sesión"}
+                  onPress={toggleMode}
+                  style={styles.switchButton}
                 />
               </View>
             </View>
@@ -106,38 +164,195 @@ export default function AuthForm({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f0f0f0",
+  },
+  containerDark: {
+    backgroundColor: "#000",
   },
   scrollView: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   inner: {
-    padding: 16,
+    padding: 20,
     flex: 1,
-    paddingTop: 64,
+    justifyContent: "center",
   },
   logo: {
-    width: 180,
-    height: 180,
-    marginBottom: 16,
-    alignSelf: 'center',
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+    alignSelf: "center",
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 24,
+    fontSize: 24,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 16,
+    color: "#262626",
+  },
+  titleDark: {
+    color: "#fff",
   },
   subtitle: {
-    fontSize: 18,
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 12,
+    color: "#999",
+  },
+  subtitleDark: {
+    color: "#aaa",
+  },
+  inputContainer: {
+    marginBottom: 12,
   },
   input: {
-    paddingVertical: 8,
+    height: 44,
+    borderColor: "#dbdbdb",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 12,
+    backgroundColor: "#fff",
+    color: "#262626",
+  },
+  inputDark: {
+    backgroundColor: "#363636",
+    borderColor: "#505050",
+    color: "#fff",
+  },
+  emailContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#dbdbdb",
+    borderRadius: 10,
+    marginBottom: 12,
+    backgroundColor: "#fff",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+  },
+  emailInput: {
+    flex: 1,
+    height: 44,
+    paddingHorizontal: 10,
+    color: "#262626",
+    backgroundColor: "#fff",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#dbdbdb",
+    borderRadius: 10,
+    marginBottom: 12,
+    backgroundColor: "#fff",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+  },
+  passwordContainerDark: {
+    backgroundColor: "#363636",
+    borderColor: "#505050",
+  },
+  passwordInput: {
+    flex: 1,
+    height: 44,
+    paddingHorizontal: 10,
+    color: "#262626",
+    backgroundColor: "#fff",
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  submitButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 30, // Radio de bordes más redondo
+    backgroundColor: "#3897f0",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    elevation: 5, // Sombra para Android
+    shadowColor: "#000", // Sombra para iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   footer: {
-    paddingTop: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  switchText: {
+    fontSize: 14,
+    color: "#999",
+    marginBottom: 8, // Espacio entre texto y botón
+  },
+  switchTextDark: {
+    color: "#aaa",
+  },
+  switchButton: {
+    padding: 12,
+    borderRadius: 50, // Radio de bordes más redondo
+    backgroundColor: "#3897f0",
+    alignItems: "center",
+    width: "50%",
+    elevation: 5, // Sombra para Android
+    shadowColor: "#000", // Sombra para iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
 });
+
+function EmailInput({ isDarkMode, placeholder, value, onChangeText }) {
+  return (
+    <View style={[styles.emailContainer, isDarkMode && styles.inputDark]}>
+      <TextInput
+        style={[styles.emailInput, isDarkMode && styles.inputDark]}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        textContentType="emailAddress"
+      />
+    </View>
+  );
+}
+
+function PasswordInput({
+  isDarkMode,
+  placeholder,
+  value,
+  onChangeText,
+  showPassword,
+  toggleShowPassword,
+}) {
+  return (
+    <View
+      style={[
+        styles.passwordContainer,
+        isDarkMode && styles.passwordContainerDark,
+      ]}
+    >
+      <TextInput
+        style={[styles.passwordInput, isDarkMode && styles.inputDark]}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={!showPassword}
+        autoCapitalize="none"
+        textContentType="password"
+      />
+      <TouchableOpacity onPress={toggleShowPassword} style={styles.eyeIcon}>
+        <Icon
+          name={showPassword ? "eye-off" : "eye"}
+          size={24}
+          color={isDarkMode ? "#aaa" : "#666"}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+}
