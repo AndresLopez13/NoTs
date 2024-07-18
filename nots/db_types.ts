@@ -104,31 +104,39 @@ export type Database = {
         Row: {
           classroom: string
           created_at: string
-          days: string
           id: string
           name: string
           nrc: number
-          start_time: string
+          schedule: Json[] | null
+          user_id: string | null
         }
         Insert: {
           classroom: string
           created_at?: string
-          days: string
           id?: string
           name: string
           nrc: number
-          start_time: string
+          schedule?: Json[] | null
+          user_id?: string | null
         }
         Update: {
           classroom?: string
           created_at?: string
-          days?: string
           id?: string
           name?: string
           nrc?: number
-          start_time?: string
+          schedule?: Json[] | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subject_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

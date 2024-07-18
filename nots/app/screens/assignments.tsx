@@ -1,3 +1,4 @@
+import React from "react";
 import "react-native-url-polyfill/auto";
 import { FlatList, StyleSheet } from "react-native";
 import { Text, View } from "@/components/Themed";
