@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import AuthScreen from './screens/AuthScreen';
 import { AuthProvider, useUserInfo } from '@/lib/userContext';
+import React from 'react';
 
 const darkTheme = {
   ...DarkTheme,
