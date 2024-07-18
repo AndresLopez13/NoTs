@@ -1,3 +1,4 @@
+import React from "react";
 import "react-native-url-polyfill/auto";
 import {
   Image,
@@ -9,6 +10,9 @@ import {
 } from "react-native";
 import { useThemeColor } from "@/components/Themed";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 
 interface MenuItem {
   title: string;
@@ -16,7 +20,8 @@ interface MenuItem {
   route: string;
 }
 
-export default function MenuScreen({ userName = "Usuario" }) {
+export default function MenuScreen() {
+  const [userName, setUserName] = useState("Usuario");
   const router = useRouter();
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
@@ -54,6 +59,27 @@ export default function MenuScreen({ userName = "Usuario" }) {
       <Text style={[styles.menuText, { color: textColor }]}>{item.title}</Text>
     </TouchableOpacity>
   );
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      const {
+        data: info,
+        error,
+        status,
+      } = await supabase
+        .from("profiles")
+        .select(`full_name, username, website, avatar_url`)
+        .eq("id", data.session?.user.id!)
+        .single();
+      return info?.username;
+    };
+    fetchUser().then((metadata) => {
+      if (metadata) {
+        setUserName(metadata || "user");
+      }
+    });
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -157,4 +183,3 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 });
-
