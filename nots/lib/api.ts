@@ -1,3 +1,4 @@
+import { Database } from "@/db_types";
 import { supabase } from "./supabase";
 
 export const fetchAssignments = async () => {
@@ -32,5 +33,25 @@ export const fetchSubjects = async () => {
   }
 };
 
+export const downloadAvatar = async (path: string): Promise<string> => {
+  try {
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .download(path);
+    if (error) throw error;
+    const fr = new FileReader();
+    fr.readAsDataURL(data);
+    return new Promise((resolve) => {
+      fr.onload = () => {
+        resolve(fr.result as string);
+      };
+    });
+  } catch (err) {
+    console.log("error", err);
+    return "";
+  }
+};
+
 export type Assignments = Awaited<ReturnType<typeof fetchAssignments>>;
 export type Subjects = Awaited<ReturnType<typeof fetchSubjects>>;
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
