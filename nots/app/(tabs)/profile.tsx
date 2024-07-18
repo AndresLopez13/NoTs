@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Button, Text, View } from '@/components/Themed';
 import { supabase } from '@/lib/supabase';
