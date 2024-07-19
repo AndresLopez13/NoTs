@@ -59,11 +59,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const saveProfile = async (updatedProfile: Profile, avatarUpdated: boolean) => {
+  const saveProfile = async (updatedProfile: Partial<Profile>, avatarUpdated: boolean) => {
     setUserInfo((prev) => ({ ...prev, loading: true }));
 
     try {
-      if (updatedProfile.avatar_url && avatarUpdated) {
+      const profileUpdate: Partial<Profile> = {};
+
+      // Solo incluye los campos que han cambiado
+      if (updatedProfile.username !== userInfo.profile?.username) {
+        profileUpdate.username = updatedProfile.username;
+      }
+
+      if (avatarUpdated && updatedProfile.avatar_url) {
         const { avatar_url } = updatedProfile;
         const fileExt = avatar_url.split(".").pop();
         const fileName = avatar_url.replace(/^.*[\\\/]/, "");
@@ -82,17 +89,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .upload(filePath, formData);
 
         if (uploadError) throw uploadError;
-        updatedProfile.avatar_url = filePath;
+        profileUpdate.avatar_url = filePath;
       }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update(updatedProfile)
-        .eq("id", userInfo.profile?.id!);
+      // Solo realiza la actualización si hay cambios
+      if (Object.keys(profileUpdate).length > 0) {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update(profileUpdate)
+          .eq("id", userInfo.profile?.id!);
 
-      if (updateError) throw updateError;
+        if (updateError) throw updateError;
 
-      await getProfile();
+        await getProfile();
+      }
     } catch (error: any) {
       Alert.alert("Server Error", error.message);
     } finally {
