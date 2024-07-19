@@ -1,6 +1,8 @@
-import { StyleSheet, ScrollView, Image, ImageSourcePropType } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Image, ImageSourcePropType } from 'react-native';
 import { View, Text, useThemeColor } from './Themed';
 import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react';
+import moment from 'moment';
 
 interface ScheduleItem {
   subject: string;
@@ -32,33 +34,62 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
     Domingo: require('../assets/images/schedule/sunday.png'),
   };
 
+  const getCurrentDay = () => {
+    const currentDayIndex = moment().isoWeekday() - 1; // isoWeekday returns 1 for Monday and 7 for Sunday
+    return days[currentDayIndex];
+  };
+
+  const [visibleDays, setVisibleDays] = useState<{ [key: string]: boolean }>({});
+
+  useEffect(() => {
+    const currentDay = getCurrentDay();
+    const initialVisibility = days.reduce((acc, day) => {
+      acc[day] = day === currentDay;
+      return acc;
+    }, {} as { [key: string]: boolean });
+    setVisibleDays(initialVisibility);
+  }, []);
+
+  const toggleVisibility = (day: string) => {
+    setVisibleDays(prevState => ({
+      ...prevState,
+      [day]: !prevState[day],
+    }));
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.separator}></View>
       {days.map(day => (
         <View key={day} style={styles.dayCard}>
-          <View style={styles.dayHeader}>
-            <Text style={[styles.dayHeaderText, { color: dayTextColor }]}>{day}</Text>
+          <TouchableOpacity style={styles.dayHeader} onPress={() => toggleVisibility(day)}>
             <Image source={dayImages[day]} style={styles.dayIcon} />
-          </View>
-          <ScrollView style={styles.subjectsContainer}>
-            {schedule[day].map((item, index) => (
-              <View key={index} style={styles.classItem}>
-                <View style={styles.classItemRow}>
-                  <Ionicons name="book-outline" size={20} style={[styles.icon, { color: iconColor }]} />
-                  <Text style={styles.subjectName}>{item.subject}</Text>
+            <Text style={[styles.dayHeaderText, { color: dayTextColor }]}>{day}</Text>
+            <Ionicons
+              name={visibleDays[day] ? 'chevron-up' : 'chevron-down'}
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+          {visibleDays[day] && (
+            <View style={styles.subjectsContainer}>
+              {schedule[day]?.map((item, index) => (
+                <View key={index} style={styles.classItem}>
+                  <View style={styles.classItemRow}>
+                    <Ionicons name="book-outline" size={20} style={[styles.icon, { color: iconColor }]} />
+                    <Text style={styles.subjectName}>{item.subject}</Text>
+                  </View>
+                  <View style={styles.classItemRow}>
+                    <Ionicons name="location-outline" size={20} style={[styles.icon, { color: iconColor }]} />
+                    <Text style={styles.description}>Aula: {item.classroom}  -  NRC: {item.nrc}</Text>
+                  </View>
+                  <View style={styles.classItemRow}>
+                    <Ionicons name="time-outline" size={20} style={[styles.icon, { color: iconColor }]} />
+                    <Text style={styles.description}>{item.startTime} - {item.endTime}</Text>
+                  </View>
                 </View>
-                <View style={styles.classItemRow}>
-                  <Ionicons name="location-outline" size={20} style={[styles.icon, { color: iconColor }]} />
-                  <Text style={styles.description}>Aula: {item.classroom}  -  NRC: {item.nrc}</Text>
-                </View>
-                <View style={styles.classItemRow}>
-                  <Ionicons name="time-outline" size={20} style={[styles.icon, { color: iconColor }]} />
-                  <Text style={styles.description}>{item.startTime} - {item.endTime}</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
+              ))}
+            </View>
+          )}
         </View>
       ))}
     </ScrollView>
@@ -98,11 +129,20 @@ const styles = StyleSheet.create({
   },
   subjectsContainer: {
     maxHeight: 400,
+    backgroundColor: 'transparent', 
   },
   classItem: {
     borderRadius: 10,
     padding: 10,
-    marginBottom: 5,
+    marginBottom: 7,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
   classItemRow: {
     flexDirection: 'row',
