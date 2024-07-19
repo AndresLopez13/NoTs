@@ -1,5 +1,6 @@
 import { Database } from "@/db_types";
 import { supabase } from "./supabase";
+import { Subject } from "./scheduleUtils";
 
 export const fetchAssignments = async () => {
   const { data } = await supabase.auth.getSession();
@@ -32,6 +33,20 @@ export const fetchSubjects = async () => {
     return subjects;
   }
 };
+
+export async function fetchSubjectsByUserId(userId: string): Promise<Subject[]> {
+  if (!userId) {
+    throw new Error('UserId is required');
+  }
+
+  const { data, error } = await supabase
+    .from('subject')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (error) throw error;
+  return data as unknown as Subject[];
+}
 
 export const downloadAvatar = async (path: string): Promise<string> => {
   try {
