@@ -4,9 +4,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  useColorScheme,
 } from "react-native";
-import { Text, View, TextInput, Button } from "./Themed";
+import { Text, View, TextInput, Button, useThemeColor } from "./Themed";
 import DateTimePicker, {
   EvtTypes,
 } from "@react-native-community/datetimepicker";
@@ -50,9 +49,7 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [error, setError] = useState("");
   const [errorModal, setErrorModal] = useState("");
-  const colorScheme = useColorScheme();
-
-  const isDark = colorScheme === "dark";
+  const backgroundColor = useThemeColor({ light: 'white', dark: '#1c1c1e' }, 'background');
 
   const handleOpenModal = (day: string) => {
     setErrorModal("");
@@ -173,7 +170,7 @@ export default function AddSubjectForm({ onSubmit }: Props) {
               style={
                 schedule.some((s) => s.day === day)
                   ? styles.dayTextSelected
-                  : styles.dayText
+                  : null
               }
             >
               {day}
@@ -296,14 +293,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: "blue",
-    backgroundColor: "lightblue",
+    borderColor: "#0c9bbd",
+    backgroundColor: "#ffce06",
     width: "30%",
     alignItems: "center",
     margin: 2,
   },
-  dayText: { color: "black" },
-  dayTextSelected: { color: "white" },
+  dayTextSelected: { color: "black" },
   errorText: {
     color: "red",
     fontSize: 16,
@@ -324,7 +320,6 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
