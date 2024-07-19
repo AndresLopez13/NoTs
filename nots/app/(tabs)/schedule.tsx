@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { processScheduleData, DaySchedule } from '../../lib/scheduleUtils';
 import WeekSchedule from '../../components/WeekSchedule';
 import { fetchSubjectsByUserId } from '@/lib/api';
 import { useUserInfo } from '@/lib/userContext';
+import { Text, View } from '@/components/Themed';
 
 const ScheduleScreen = () => {
   const [schedule, setSchedule] = useState<DaySchedule | null>(null);
@@ -30,11 +31,19 @@ const ScheduleScreen = () => {
   }, [userId]);
 
   if (!userId) {
-    return <Text>Usuario no válido</Text>;
+    return (
+      <View style={styles.centeredContainer}>
+        <Text style={styles.largeText}>Usuario no válido</Text>
+      </View>
+    );
   }
 
   if (!schedule) {
-    return <Text>Cargando horario...</Text>;
+    return (
+      <View style={styles.centeredContainer}>
+        <Text style={styles.largeText}>Cargando horario...</Text>
+      </View>
+    );
   }
 
   return (
@@ -47,6 +56,18 @@ const ScheduleScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    padding: 5,
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  largeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
