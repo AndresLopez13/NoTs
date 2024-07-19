@@ -99,6 +99,7 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 10,
   },
   separator: {
     paddingTop: 10,
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     marginBottom: 10,
-    paddingHorizontal: 65,
+    paddingHorizontal: 55,
     backgroundColor: '#e5e5e5'
   },
   dayHeaderText: {
