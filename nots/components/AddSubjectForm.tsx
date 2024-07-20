@@ -317,12 +317,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22,
+    backgroundColor: "transparent",
   },
   modalView: {
     margin: 20,
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "white",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
