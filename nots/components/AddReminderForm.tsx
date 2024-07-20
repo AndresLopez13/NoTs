@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import {
   StyleSheet,
   ScrollView,
-  Platform,
-  useColorScheme,
+  Text,
+  View,
+  TextInput,
+  Button,
+  TouchableOpacity,
 } from "react-native";
-import { Text, View, TextInput, Button } from "./Themed";
 import { Picker } from "@react-native-picker/picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import Icon from "react-native-vector-icons/FontAwesome"; // Asegúrate de instalar esta librería
 
 interface Props {
   onSubmit: (
@@ -24,10 +27,11 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
   const [subject, setSubject] = useState("");
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
   const [error, setError] = useState("");
-  const scheme = useColorScheme();
 
   const handleAddAssignment = () => {
     if (!name || !description || (!date && type !== "Apunte") || !subject) {
@@ -40,36 +44,66 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
     setName("");
     setDescription("");
     setDate(new Date());
+    setTime(new Date());
     setSubject("");
   };
 
-  const onChangeDate = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(Platform.OS === "ios");
-    setDate(currentDate);
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const showTimePicker = () => {
+    setTimePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const hideTimePicker = () => {
+    setTimePickerVisibility(false);
+  };
+
+  const handleConfirmDate = (selectedDate) => {
+    setDate(selectedDate);
+    hideDatePicker();
+  };
+
+  const handleConfirmTime = (selectedTime) => {
+    setTime(selectedTime);
+    hideTimePicker();
+  };
+
+  const formatDate = (date) => {
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  };
+
+  const formatTime = (time) => {
+    return `${time.getHours()}:${time.getMinutes()}`;
   };
 
   return (
-    <ScrollView style={styles(scheme).container}>
-      <Text style={styles(scheme).title}>Añadir actividad</Text>
-      {error ? <Text style={styles(scheme).error}>{error}</Text> : null}
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Añadir actividad</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
       <Picker
         selectedValue={type}
-        onValueChange={(itemValue, itemIndex) => setType(itemValue)}
-        style={styles(scheme).picker}
+        onValueChange={setType}
+        style={styles.picker}
       >
         <Picker.Item label="Tarea" value="Tarea" />
         <Picker.Item label="Prueba" value="Prueba" />
         <Picker.Item label="Apunte" value="Apunte" />
       </Picker>
+      <Text style={styles.subtitle}>Datos de la actividad</Text>
       <TextInput
-        style={styles(scheme).input}
+        style={styles.input}
         onChangeText={setName}
         value={name}
         placeholder="Nombre de la actividad"
       />
       <TextInput
-        style={styles(scheme).inputLarge}
+        style={styles.inputLarge}
         onChangeText={setDescription}
         value={description}
         placeholder="Descripción de la actividad"
@@ -77,30 +111,51 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
         numberOfLines={4}
       />
       {type !== "Apunte" && (
-        <View style={styles(scheme).dateButtonContainer}>
-          <Text style={styles(scheme).label}>
-            Fecha y Hora {type === "Tarea" ? "de Entrega" : "de Comienzo"}:
-          </Text>
-          <Button
-            onPress={() => setShowDatePicker(true)}
-            title={`Seleccionar ${
-              type === "Tarea" ? "fecha de entrega" : "fecha de comienzo"
-            }`}
-          />
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="datetime"
-              display="default"
-              onChange={onChangeDate}
+        <View style={styles.dateButtonContainer}>
+          <Text style={styles.subtitle}>Datos de la entrega</Text>
+          <View style={styles.dateHourContainer}>
+            <View style={styles.dateContainer}>
+              <Text style={styles.label}>Fecha</Text>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={showDatePicker}
+              >
+                <Icon name="calendar" size={24} color="#000" />
+              </TouchableOpacity>
+              <Text>{formatDate(date)}</Text>
+            </View>
+            <View style={styles.timeContainer}>
+              <Text style={styles.label}>Hora</Text>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={showTimePicker}
+              >
+                <Icon name="clock-o" size={24} color="#000" />
+              </TouchableOpacity>
+              <Text>{formatTime(time)}</Text>
+            </View>
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="date"
+              onConfirm={handleConfirmDate}
+              onCancel={hideDatePicker}
+              date={date}
             />
-          )}
+            <DateTimePickerModal
+              isVisible={isTimePickerVisible}
+              mode="time"
+              onConfirm={handleConfirmTime}
+              onCancel={hideTimePicker}
+              date={time}
+            />
+          </View>
         </View>
       )}
+      <Text style={styles.subtitle}>Materia</Text>
       <Picker
         selectedValue={subject}
         onValueChange={setSubject}
-        style={styles(scheme).picker}
+        style={styles.picker}
       >
         <Picker.Item label="Matemáticas" value="Matemáticas" />
         <Picker.Item label="Historia" value="Historia" />
@@ -111,69 +166,93 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
   );
 }
 
-const styles = (scheme) =>
-  StyleSheet.create({
-    container: {
-      width: "100%",
-      flex: 1,
-      padding: 16,
-      backgroundColor: scheme === "dark" ? "#333" : "#fff",
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: "bold",
-      textAlign: "center",
-      marginBottom: 20,
-      color: scheme === "dark" ? "#fff" : "#000",
-    },
-    input: {
-      width: "100%",
-      borderColor: scheme === "dark" ? "#ccc" : "gray",
-      borderWidth: 1,
-      padding: 10,
-      marginBottom: 20,
-      borderRadius: 5,
-      backgroundColor: scheme === "dark" ? "#555" : "#fff",
-      color: scheme === "dark" ? "#fff" : "#000",
-    },
-    inputLarge: {
-      width: "100%",
-      borderColor: scheme === "dark" ? "#ccc" : "gray",
-      borderWidth: 1,
-      padding: 10,
-      marginBottom: 20,
-      borderRadius: 5,
-      backgroundColor: scheme === "dark" ? "#555" : "#fff",
-      color: scheme === "dark" ? "#fff" : "#000",
-      minHeight: 100, // Más espacio para descripciones largas
-    },
-    picker: {
-      width: "100%",
-      marginBottom: 20,
-      backgroundColor: scheme === "dark" ? "#555" : "#f0f0f0",
-      color: scheme === "dark" ? "#fff" : "#000",
-    },
-    label: {
-      fontSize: 16,
-      marginBottom: 5,
-      color: scheme === "dark" ? "#fff" : "#000",
-    },
-    error: {
-      color: "red",
-      fontSize: 16,
-      marginBottom: 10,
-      textAlign: "center",
-    },
-    dateButtonContainer: {
-      marginBottom: 20,
-    },
-    button: {
-      width: "100%",
-      backgroundColor: "#007BFF",
-      color: "#ffffff",
-      padding: 10,
-      borderRadius: 5,
-      textAlign: "center",
-      marginBottom: 20,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    width: "100%",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginBottom: 10,
+  },
+  input: {
+    width: "100%",
+    borderColor: "gray",
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    color: "#000",
+  },
+  inputLarge: {
+    width: "100%",
+    borderColor: "gray",
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    color: "#000",
+    minHeight: 100,
+  },
+  picker: {
+    width: "100%",
+    marginBottom: 20,
+    backgroundColor: "#f0f0f0",
+    color: "#000",
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#000",
+  },
+  error: {
+    color: "red",
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  dateHourContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dateContainer: {
+    flex: 1,
+    alignItems: "center",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 5, // Espacio a la derecha del contenedor de la fecha
+  },
+  timeContainer: {
+    flex: 1,
+    alignItems: "center",
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginLeft: 5, // Espacio a la izquierda del contenedor de la hora
+  },
+  dateButtonContainer: {
+    marginBottom: 20,
+  },
+  iconButton: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+    padding: 10,
+  },
+});
