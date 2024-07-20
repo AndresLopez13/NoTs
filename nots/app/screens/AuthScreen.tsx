@@ -7,6 +7,11 @@ import { supabase } from '@/lib/supabase';
 export default function AuthScreen() {
   const [loading, setLoading] = useState(false);
 
+  const errorMessages: { [key: string]: string } = {
+    "Invalid login credentials": "Credenciales de inicio de sesión inválidas",
+    "User not found": "Usuario no encontrado",
+  };
+
   const handleSignup = async (credentials: SignUpWithPasswordCredentials) => {
     if (!("email" in credentials)) return;
     setLoading(true);
@@ -17,7 +22,10 @@ export default function AuthScreen() {
       options,
     });
 
-    if (error) Alert.alert(error.message);
+    if (error) {
+      const translatedMessage = errorMessages[error.message as string] || error.message;
+      Alert.alert("Error", translatedMessage);
+    }
     setLoading(false);
   };
 
@@ -29,12 +37,15 @@ export default function AuthScreen() {
       email,
       password,
     });
-    if (error) Alert.alert(error.message);
+    if (error) {
+      const translatedMessage = errorMessages[error.message as string] || error.message;
+      Alert.alert("Error", translatedMessage);
+    }
     setLoading(false);
   };
 
   return (
-    <AuthForm onSignUp={handleSignup}  onLogin={handleLogin} loading={loading}/>
+    <AuthForm onSignUp={handleSignup} onLogin={handleLogin} loading={loading} />
   )
 }
 
