@@ -131,7 +131,7 @@ export default function AuthForm({
                 />
               )}
               <Button
-                title={mode === "login" ? "Iniciar sesión" : "Registrarse"}
+                title={mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
                 onPress={handleSubmit}
                 disabled={loading || !email || !password}
                 style={styles.submitButton}
@@ -148,7 +148,7 @@ export default function AuthForm({
                     : "¿Ya tienes una cuenta?"}
                 </Text>
                 <Button
-                  title={mode === "login" ? "Regístrate" : "Inicia sesión"}
+                  title={mode === "login" ? "Crear cuenta" : "Inicia sesión"}
                   onPress={toggleMode}
                   style={styles.switchButton}
                 />
