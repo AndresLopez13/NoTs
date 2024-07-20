@@ -96,7 +96,7 @@ export default function AuthForm({
           <ScrollView contentContainerStyle={styles.scrollView}>
             <View style={styles.inner}>
               <Image
-                source={require("../assets/images/icon.png")}
+                source={require("../assets/images/NoTs.png")}
                 style={styles.logo}
               />
               <Text style={[styles.title, isDarkMode && styles.titleDark]}>
@@ -179,8 +179,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 300,
+    height: 150,
     marginBottom: 20,
     alignSelf: "center",
   },
