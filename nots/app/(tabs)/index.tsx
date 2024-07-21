@@ -3,15 +3,11 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
 } from "react-native";
 import { Text, View, useThemeColor } from "@/components/Themed";
 import { useEffect, useState } from "react";
-import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
-import { useThemeColor } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import React from "react";

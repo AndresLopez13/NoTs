@@ -39,14 +39,6 @@ const lightTheme = {
   },
 };
 
-const handleSignOut = async () => {
-  try {
-    await supabase.auth.signOut();
-  } catch (error) {
-    console.error('Error al cerrar sesión:', error);
-  }
-};
-
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
