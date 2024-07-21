@@ -1,13 +1,12 @@
-import { StyleSheet} from 'react-native'
-import { Text, View } from '@/components/Themed'
-import React from 'react'
+import { StyleSheet } from "react-native";
+import { Text, View } from "@/components/Themed";
 
 export default function ExamScreen() {
   return (
     <View>
       <Text>ExamScreen</Text>
     </View>
-  )
+  );
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

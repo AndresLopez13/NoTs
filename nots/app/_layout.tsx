@@ -12,8 +12,16 @@ import { Drawer } from 'expo-router/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useThemeColor, View } from '@/components/Themed';
-import { DrawerItem } from '@react-navigation/drawer';
-import { supabase } from '@/lib/supabase';
+import { AppState } from "react-native";
+import { supabase } from "@/lib/supabase";
+
+AppState.addEventListener("change", (state) => {
+  if (state === "active") {
+    supabase.auth.startAutoRefresh();
+  } else {
+    supabase.auth.stopAutoRefresh();
+  }
+});
 
 const darkTheme = {
   ...DarkTheme,
@@ -34,7 +42,6 @@ const lightTheme = {
 const handleSignOut = async () => {
   try {
     await supabase.auth.signOut();
-    // Aquí puedes añadir lógica adicional después de cerrar sesión, como navegar a la pantalla de inicio de sesión
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
   }
@@ -43,11 +50,11 @@ const handleSignOut = async () => {
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
-} from 'expo-router';
+} from "expo-router";
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: "(tabs)",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -55,7 +62,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
   });
 
@@ -87,7 +94,7 @@ function RootLayoutNav() {
   const iconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? darkTheme : lightTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? darkTheme : lightTheme}>
       {session ? (
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Drawer

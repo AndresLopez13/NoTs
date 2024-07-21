@@ -9,62 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      assignments: {
-        Row: {
-          created_at: string
-          description: string
-          due_date: string
-          id: string
-          title: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          due_date: string
-          id?: string
-          title: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          due_date?: string
-          id?: string
-          title?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assignments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      notes: {
-        Row: {
-          created_at: string
-          description: string
-          id: string
-          title: string
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          id?: string
-          title: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          id?: string
-          title?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -95,6 +39,47 @@ export type Database = {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          date: string | null
+          description: string | null
+          id: number
+          name: string | null
+          time: string | null
+          type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          id?: number
+          name?: string | null
+          time?: string | null
+          type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          id?: number
+          name?: string | null
+          time?: string | null
+          type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },

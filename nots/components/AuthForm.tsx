@@ -21,7 +21,7 @@ import type {
 } from "@supabase/supabase-js";
 
 const strongPasswordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~])[A-Za-z\d!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~]{8,}$/;
 
 interface AuthFormProps {
   onSignUp: (credentials: SignUpWithPasswordCredentials) => void;
@@ -81,6 +81,11 @@ export default function AuthForm({
         password,
         options: { data: { username: email.split("@")[0] } },
       });
+      Alert.alert(
+        "Registro exitoso",
+        "Se ha enviado un correo de confirmación a su email."
+      );
+      setMode("login");
     }
   };
 
@@ -282,7 +287,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 32,
   },
   switchText: {
     fontSize: 14,
