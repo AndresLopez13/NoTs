@@ -7,6 +7,8 @@ import Avatar from '@/components/Avatar';
 import * as ImagePicker from "expo-image-picker";
 import { downloadAvatar } from '@/lib/api';
 import { Ionicons } from '@expo/vector-icons';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import React from "react";
 
 export default function Profile() {
   const { profile: userProfile, session: userSession, loading, saveProfile } = useUserInfo();
@@ -15,6 +17,8 @@ export default function Profile() {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [username, setUsername] = useState(userProfile?.username || '');
   const iconColor = useThemeColor({ light: '#4a4a4a', dark: '#dfdfdf' }, 'text');
+  const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (userProfile?.avatar_url) {
@@ -64,6 +68,16 @@ export default function Profile() {
   const toggleUsernameEdit = () => {
     setIsEditingUsername(!isEditingUsername);
   };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+          <Ionicons name="menu" size={24} style={[{ marginRight: 20, marginLeft: 15 }, { color: menuIconColor }]} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, menuIconColor]);
 
   return (
     <SafeAreaView style={styles.container}>

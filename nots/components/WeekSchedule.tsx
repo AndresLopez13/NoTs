@@ -114,10 +114,10 @@ const styles = StyleSheet.create({
   },
   dayHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    paddingHorizontal: 55,
+    paddingHorizontal: 20,
     backgroundColor: '#e5e5e5'
   },
   dayHeaderText: {

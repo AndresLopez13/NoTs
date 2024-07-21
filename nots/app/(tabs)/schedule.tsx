@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { processScheduleData, DaySchedule } from '../../lib/scheduleUtils';
 import WeekSchedule from '../../components/WeekSchedule';
 import { fetchSubjectsByUserId } from '@/lib/api';
 import { useUserInfo } from '@/lib/userContext';
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
+import { Ionicons } from '@expo/vector-icons';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import React from "react";
 
 const ScheduleScreen = () => {
   const [schedule, setSchedule] = useState<DaySchedule | null>(null);
   const { session: userSession } = useUserInfo();
   const userId = userSession?.user.id;
-  
+  const navigation = useNavigation();
+  const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
+
   useEffect(() => {
     async function loadSchedule() {
       if (!userId) {
@@ -29,6 +34,16 @@ const ScheduleScreen = () => {
 
     loadSchedule();
   }, [userId]);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+          <Ionicons name="menu" size={24} style={[{ marginRight: 20, marginLeft: 15 }, { color: menuIconColor }]} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, menuIconColor]);
 
   if (!userId) {
     return (

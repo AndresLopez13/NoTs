@@ -1,18 +1,18 @@
-import React from "react";
 import "react-native-url-polyfill/auto";
 import {
   Image,
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  View,
-  Text,
 } from "react-native";
-import { useThemeColor } from "@/components/Themed";
+import { Text, View, useThemeColor } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import React from "react";
 
 interface MenuItem {
   title: string;
@@ -26,6 +26,8 @@ export default function MenuScreen() {
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
   const menuItemBackgroundColor = useThemeColor({}, "card");
+  const navigation = useNavigation();
+  const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
 
   const menuItems: MenuItem[] = [
     {
@@ -80,6 +82,16 @@ export default function MenuScreen() {
       }
     });
   }, []);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+          <Ionicons name="menu" size={24} style={[{ marginRight: 20, marginLeft: 15 }, { color: menuIconColor }]} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, menuIconColor]);
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
