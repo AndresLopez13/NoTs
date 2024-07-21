@@ -1,8 +1,20 @@
+import "react-native-url-polyfill/auto";
+import {
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import { Text, View, useThemeColor } from "@/components/Themed";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { useThemeColor } from "@/components/Themed";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import React from "react";
 import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
 import { useUserInfo } from "@/lib/userContext";
 
@@ -19,6 +31,8 @@ export default function MenuScreen() {
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
   const menuItemBackgroundColor = useThemeColor({}, "card");
+  const navigation = useNavigation();
+  const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
   const { session } = useUserInfo();
   const { data, error } = useQuery(
     supabase.from("reminders").select("*").eq("user_id", session!.user.id),
@@ -65,6 +79,16 @@ export default function MenuScreen() {
       )
       .subscribe();
   }, []);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+          <Ionicons name="menu" size={24} style={[{ marginRight: 20, marginLeft: 15 }, { color: menuIconColor }]} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, menuIconColor]);
 
   const menuItems: MenuItem[] = [
     {

@@ -39,6 +39,7 @@ export default function TabLayout() {
         name="schedule"
         options={{
           title: "Horario",
+          headerTitle: "Mi Horario",
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="calendar" color={color} />
           ),
@@ -49,6 +50,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Perfil",
+          headerTitle: "Mi Perfil",
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].primaryColor,
         }}
