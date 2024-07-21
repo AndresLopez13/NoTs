@@ -1,18 +1,10 @@
-import React from "react";
-import "react-native-url-polyfill/auto";
-import {
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  View,
-  Text,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { useThemeColor } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
+import { useUserInfo } from "@/lib/userContext";
 
 interface MenuItem {
   title: string;
@@ -22,22 +14,59 @@ interface MenuItem {
 
 export default function MenuScreen() {
   const [userName, setUserName] = useState("Usuario");
+  const [reminders, setReminders] = useState([]);
   const router = useRouter();
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
   const menuItemBackgroundColor = useThemeColor({}, "card");
+  const { session } = useUserInfo();
+  const { data, error } = useQuery(
+    supabase.from("reminders").select("*").eq("user_id", session!.user.id),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: info } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", session!.user.id)
+        .single();
+      return info?.username;
+    };
+    fetchUser().then((metadata) => {
+      if (metadata) {
+        setUserName(metadata || "user");
+      }
+    });
+
+    supabase
+      .channel("profiles_users")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+        },
+        (payload) => {
+          if (payload.eventType === "UPDATE") {
+            fetchUser().then((metadata) => {
+              if (metadata) {
+                setUserName(metadata || "user");
+              }
+            });
+            console.log("User updated");
+          }
+        }
+      )
+      .subscribe();
+  }, []);
 
   const menuItems: MenuItem[] = [
-    {
-      title: "Recordatorios",
-      image: require("../../assets/images/menu/reminders.png"),
-      route: "/screens/reminders",
-    },
-    {
-      title: "Apuntes",
-      image: require("../../assets/images/menu/notes.png"),
-      route: "/screens/notes",
-    },
     {
       title: "Tareas",
       image: require("../../assets/images/menu/assignments.png"),
@@ -48,87 +77,86 @@ export default function MenuScreen() {
       image: require("../../assets/images/menu/exams.png"),
       route: "/screens/exams",
     },
+    {
+      title: "Apuntes",
+      image: require("../../assets/images/menu/notes.png"),
+      route: "/screens/notes",
+    },
   ];
 
-  const renderMenuItem = ({ item }: { item: MenuItem }) => (
-    <TouchableOpacity
-      style={[styles.menuItem, { backgroundColor: menuItemBackgroundColor }]}
-      onPress={() => router.push(item.route)}
-    >
-      <Image source={item.image} style={styles.menuImage} />
-      <Text style={[styles.menuText, { color: textColor }]}>{item.title}</Text>
-    </TouchableOpacity>
-  );
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      const {
-        data: info,
-        error,
-        status,
-      } = await supabase
-        .from("profiles")
-        .select(`full_name, username, website, avatar_url`)
-        .eq("id", data.session?.user.id!)
-        .single();
-      return info?.username;
-    };
-    fetchUser().then((metadata) => {
-      if (metadata) {
-        setUserName(metadata || "user");
-      }
-    });
-  }, []);
-
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <>
       <Text style={[styles.greeting, { color: textColor }]}>
         Hola, {userName}, ¿qué vas a hacer hoy?
       </Text>
-      <View style={styles.sectionTop}>
+      <View style={[styles.container, { backgroundColor }]}>
         <Text style={[styles.sectionTitle, { color: textColor }]}>
-          Registro de Materias
+          Agrega algo nuevo...
         </Text>
-        <TouchableOpacity
-          style={[
-            styles.menuItem,
-            { backgroundColor: menuItemBackgroundColor },
-          ]}
-          onPress={() => router.push("/screens/subjects")}
-        >
-          <Image
-            source={require("../../assets/images/menu/subjects.png")}
-            style={styles.menuImage}
-          />
-          <Text style={[styles.menuText, { color: textColor }]}>Materias</Text>
-        </TouchableOpacity>
+        <View style={styles.sectionTop}>
+          <TouchableOpacity
+            style={[
+              styles.menuItemTop,
+              { backgroundColor: menuItemBackgroundColor },
+            ]}
+            onPress={() => router.push("/screens/subjects")}
+          >
+            <Image
+              source={require("../../assets/images/menu/subjects.png")}
+              style={styles.menuImage}
+            />
+            <Text style={[styles.menuText, { color: textColor }]}>
+              Materias
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.menuItemTop,
+              { backgroundColor: menuItemBackgroundColor },
+            ]}
+            onPress={() => router.push("/screens/reminders")}
+          >
+            <Image
+              source={require("../../assets/images/menu/reminders.png")}
+              style={styles.menuImage}
+            />
+            <Text style={[styles.menuText, { color: textColor }]}>
+              Recordatorios
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.sectionTitle, { color: textColor }]}>
+          Mira tus actividades
+        </Text>
+        <View style={styles.section}>
+          {menuItems.slice().map((item) => (
+            <TouchableOpacity
+              key={item.title}
+              style={[
+                styles.menuItemFooter,
+                { backgroundColor: menuItemBackgroundColor },
+              ]}
+              onPress={() => router.push(item.route)}
+            >
+              <Image source={item.image} style={styles.menuImage} />
+              <Text style={[styles.menuText, { color: textColor }]}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
-      <Text
-        style={[
-          styles.sectionTitle,
-          { color: textColor, alignSelf: "flex-start", marginLeft: 16 },
-        ]}
-      >
-        Registro de Actividades
-      </Text>
-      <FlatList
-        data={menuItems}
-        renderItem={renderMenuItem}
-        keyExtractor={(item) => item.title}
-        numColumns={2}
-        key={"four-buttons"}
-        columnWrapperStyle={styles.column}
-        contentContainerStyle={styles.listContainer}
-      />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f4f4", // Un color de fondo más neutro que puede ser más fácil para los ojos
+    backgroundColor: "#f4f4f4",
+    alignContent: "center",
+    justifyContent: "center",
   },
   greeting: {
     fontSize: 20,
@@ -142,15 +170,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
   },
-  listContainer: {
-    padding: 16,
+  section: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
   },
-  column: {
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  menuItem: {
+  menuItemTop: {
     flexDirection: "column",
     alignItems: "center",
     paddingVertical: 12,
@@ -165,8 +192,23 @@ const styles = StyleSheet.create({
     shadowRadius: 1.5,
     elevation: 5,
   },
+  menuItemFooter: {
+    flexDirection: "column",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    margin: 8,
+    borderRadius: 15,
+    backgroundColor: "#fff",
+    width: "30%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1.5,
+    elevation: 5,
+  },
   menuImage: {
-    width: 60, // Tamaño ligeramente mayor para mejorar la visibilidad
+    width: 60,
     height: 60,
     marginBottom: 8,
   },
@@ -179,7 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginTop: 10,
-    marginLeft: 16, // Asegura consistencia en la alineación del texto
+    marginLeft: 16,
     textAlign: "left",
   },
 });

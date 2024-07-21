@@ -1,45 +1,36 @@
-import React from "react";
 import "react-native-url-polyfill/auto";
-import { FlatList, StyleSheet } from "react-native";
-import { Text, View } from "@/components/Themed";
-import { useState, useEffect } from "react";
+import { StyleSheet } from "react-native";
+import { View } from "@/components/Themed";
 import { supabase } from "../../lib/supabase";
 import AddReminderForm from "@/components/AddReminderForm";
-import { Assignments, fetchAssignments } from "@/lib/api";
 
-export default function AssignmentScreen() {
-  const [assignments, setAssignments] = useState<Assignments>([]);
-
-  useEffect(() => {
-    fetchAssignments().then((data) => {
-      setAssignments(data);
-    });
-  }, []);
-
+export default function ReminderScreen() {
   const handleSubmit = async (
-    title: string,
+    type: string,
+    name: string,
     description: string,
-    due_date: Date
+    date?: string,
+    time?: string,
+    selectedSubject?: string
   ) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { data, error } = await supabase
-      .from("assignments")
+    const { data } = await supabase.auth.getSession();
+    const { error } = await supabase
+      .from("reminders")
       .insert({
-        title,
+        type,
+        name,
         description,
-        due_date: due_date.toISOString(),
-        user_id: user?.id,
+        date,
+        time,
+        subject_id: selectedSubject,
+        user_id: data.session?.user.id!,
       })
       .select();
     if (error) {
       console.log(error);
       alert("Error al añadir tarea");
     } else {
-      setAssignments([data[0], ...assignments]);
-      alert("Tarea añadida");
+      alert("Recordatorio creado");
     }
   };
 
