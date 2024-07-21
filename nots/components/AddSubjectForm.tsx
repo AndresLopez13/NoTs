@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-} from "react-native";
-import { Text, View, TextInput, Button, useThemeColor } from "./Themed";
+import { StyleSheet, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { Text, View, TextInput, Button } from "./Themed";
 import DateTimePicker, {
   EvtTypes,
 } from "@react-native-community/datetimepicker";
@@ -49,7 +44,6 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [error, setError] = useState("");
   const [errorModal, setErrorModal] = useState("");
-  const backgroundColor = useThemeColor({ light: 'white', dark: '#1c1c1e' }, 'background');
 
   const handleOpenModal = (day: string) => {
     setErrorModal("");
@@ -131,8 +125,8 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Añadir Asignatura</Text>
+    <View style={styles.container}>
+      <Text style={styles.subtitle}>Datos de la asignatura</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
         style={styles.input}
@@ -155,6 +149,8 @@ export default function AddSubjectForm({ onSubmit }: Props) {
           placeholder="Aula"
         />
       </View>
+
+      <Text style={styles.subtitle}>Escoge los días de la semana</Text>
       <View style={styles.daysContainer}>
         {daysOfWeek.map((day) => (
           <TouchableOpacity
@@ -251,12 +247,17 @@ export default function AddSubjectForm({ onSubmit }: Props) {
       <View style={styles.buttonContainer}>
         <Button title="Crear materia" onPress={handleAddSubject} />
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
+  container: {
+    flex: 1,
+    padding: 16,
+    alignContent: "center",
+    justifyContent: "center",
+  },
   error: { color: "red", marginBottom: 10 },
   title: {
     fontSize: 20,
@@ -264,15 +265,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
   },
-  input: { borderColor: "gray", borderWidth: 1, padding: 8, marginVertical: 5 },
-  rowContainer: { flexDirection: "row", justifyContent: "space-between" },
+  input: {
+    borderColor: "gray",
+    borderWidth: 1,
+    padding: 10,
+    marginVertical: 5,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginBottom: 10,
+  },
+  rowContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignContent: "center",
+    alignItems: "center",
+    paddingBottom: 10,
+  },
   halfInput: {
     borderColor: "gray",
     borderWidth: 1,
-    padding: 8,
+    padding: 10,
     flex: 1,
     marginVertical: 5,
     marginRight: 5,
+    borderRadius: 5,
   },
   daysContainer: {
     flexDirection: "row",
