@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import React from "react";
-import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
 import { useUserInfo } from "@/lib/userContext";
 
 interface MenuItem {
@@ -28,13 +27,6 @@ export default function MenuScreen() {
     "text"
   );
   const { session } = useUserInfo();
-  const { data: reminders, error } = useQuery(
-    supabase.from("reminders").select("*").eq("user_id", session!.user.id),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
 
   useEffect(() => {
     const fetchUser = async () => {

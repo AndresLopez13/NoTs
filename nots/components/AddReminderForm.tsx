@@ -154,7 +154,7 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
         onChangeText={setDescription}
         value={description}
         placeholder="Descripción de la actividad"
-        multiline={true}
+        multiline
         numberOfLines={4}
       />
       {type !== "Apunte" && (
