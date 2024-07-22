@@ -15,10 +15,9 @@ import { AuthProvider, useUserInfo } from "@/lib/userContext";
 import { Drawer } from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useThemeColor, View } from "@/components/Themed";
-import { AppState } from "react-native";
+import { useThemeColor } from "@/components/Themed";
+import { AppState, TouchableOpacity } from "react-native";
 import { supabase } from "@/lib/supabase";
-import { router } from "expo-router";
 
 AppState.addEventListener("change", (state) => {
   if (state === "active") {
@@ -48,11 +47,6 @@ export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
-};
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -95,9 +89,17 @@ function RootLayoutNav() {
       {session ? (
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Drawer
-            screenOptions={{
+            screenOptions={({ navigation }) => ({
               headerTintColor: iconColor,
-            }}
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={navigation.goBack}
+                  style={{ marginLeft: 16 }}
+                >
+                  <Ionicons name="arrow-back" size={24} color={iconColor} />
+                </TouchableOpacity>
+              ),
+            })}
           >
             <Drawer.Screen
               name="(tabs)"
@@ -117,21 +119,6 @@ function RootLayoutNav() {
                 drawerIcon: ({ size, color }) => (
                   <Ionicons name="book-outline" size={size} color={color} />
                 ),
-                headerLeft() {
-                  return (
-                    <View style={{ marginLeft: 10 }}>
-                      <FontAwesome.Button
-                        name="arrow-left"
-                        size={24}
-                        color={iconColor}
-                        backgroundColor="transparent"
-                        onPress={() => {
-                          router.back();
-                        }}
-                      />
-                    </View>
-                  );
-                },
               }}
             />
             <Drawer.Screen
@@ -191,7 +178,7 @@ function RootLayoutNav() {
               }}
             />
             <Drawer.Screen
-              name="drawer-schedule"
+              name="screens/schedule"
               options={{
                 drawerLabel: "Horario",
                 headerTitle: "Mi Horario",
@@ -201,7 +188,7 @@ function RootLayoutNav() {
               }}
             />
             <Drawer.Screen
-              name="drawer-profile"
+              name="screens/profile"
               options={{
                 drawerLabel: "Perfil",
                 headerTitle: "Mi Perfil",
@@ -221,19 +208,7 @@ function RootLayoutNav() {
               }}
             />
             <Drawer.Screen
-              name="screens/schedule"
-              options={{
-                drawerItemStyle: { height: 0 },
-              }}
-            />
-            <Drawer.Screen
               name="+not-found"
-              options={{
-                drawerItemStyle: { height: 0 },
-              }}
-            />
-            <Drawer.Screen
-              name="modal"
               options={{
                 drawerItemStyle: { height: 0 },
               }}
