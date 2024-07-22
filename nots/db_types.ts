@@ -49,8 +49,9 @@ export type Database = {
           created_at: string
           date: string | null
           description: string | null
-          id: number
+          id: string
           name: string | null
+          subject_id: string | null
           time: string | null
           type: string | null
           user_id: string | null
@@ -59,8 +60,9 @@ export type Database = {
           created_at?: string
           date?: string | null
           description?: string | null
-          id?: number
+          id?: string
           name?: string | null
+          subject_id?: string | null
           time?: string | null
           type?: string | null
           user_id?: string | null
@@ -69,13 +71,21 @@ export type Database = {
           created_at?: string
           date?: string | null
           description?: string | null
-          id?: number
+          id?: string
           name?: string | null
+          subject_id?: string | null
           time?: string | null
           type?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reminders_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subject"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reminders_user_id_fkey"
             columns: ["user_id"]
@@ -125,7 +135,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      reminders_with_subjects: {
+        Row: {
+          date: string | null
+          description: string | null
+          name: string | null
+          subject_name: string | null
+          time: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

@@ -1,5 +1,5 @@
 export interface Reminder {
-  id: number;
+  id: string;
   type: string;
   name: string;
   description: string;
