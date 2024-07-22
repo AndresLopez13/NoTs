@@ -1,15 +1,11 @@
 import "react-native-url-polyfill/auto";
-import {
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View, useThemeColor } from "@/components/Themed";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
 import { useUserInfo } from "@/lib/userContext";
@@ -22,15 +18,17 @@ interface MenuItem {
 
 export default function MenuScreen() {
   const [userName, setUserName] = useState("Usuario");
-  const [reminders, setReminders] = useState([]);
   const router = useRouter();
   const backgroundColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
   const menuItemBackgroundColor = useThemeColor({}, "card");
   const navigation = useNavigation();
-  const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
+  const menuIconColor = useThemeColor(
+    { light: "black", dark: "white" },
+    "text"
+  );
   const { session } = useUserInfo();
-  const { data, error } = useQuery(
+  const { data: reminders, error } = useQuery(
     supabase.from("reminders").select("*").eq("user_id", session!.user.id),
     {
       revalidateOnFocus: false,
@@ -79,8 +77,17 @@ export default function MenuScreen() {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
-        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-          <Ionicons name="menu" size={24} style={[{ marginRight: 20, marginLeft: 15 }, { color: menuIconColor }]} />
+        <TouchableOpacity
+          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+        >
+          <Ionicons
+            name="menu"
+            size={24}
+            style={[
+              { marginRight: 20, marginLeft: 15 },
+              { color: menuIconColor },
+            ]}
+          />
         </TouchableOpacity>
       ),
     });
