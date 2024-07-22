@@ -1,19 +1,24 @@
-import 'react-native-url-polyfill/auto';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { useColorScheme } from '@/components/useColorScheme';
-import Colors from '@/constants/Colors';
-import AuthScreen from './screens/AuthScreen';
-import { AuthProvider, useUserInfo } from '@/lib/userContext';
-import { Drawer } from 'expo-router/drawer';
-import { Ionicons } from '@expo/vector-icons';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useThemeColor, View } from '@/components/Themed';
+import "react-native-url-polyfill/auto";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { useColorScheme } from "@/components/useColorScheme";
+import Colors from "@/constants/Colors";
+import AuthScreen from "./screens/AuthScreen";
+import { AuthProvider, useUserInfo } from "@/lib/userContext";
+import { Drawer } from "expo-router/drawer";
+import { Ionicons } from "@expo/vector-icons";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useThemeColor, View } from "@/components/Themed";
 import { AppState } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { router } from "expo-router";
 
 AppState.addEventListener("change", (state) => {
   if (state === "active") {
@@ -83,7 +88,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { session } = useUserInfo();
-  const iconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
+  const iconColor = useThemeColor({ light: "black", dark: "white" }, "text");
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? darkTheme : lightTheme}>
@@ -112,6 +117,21 @@ function RootLayoutNav() {
                 drawerIcon: ({ size, color }) => (
                   <Ionicons name="book-outline" size={size} color={color} />
                 ),
+                headerLeft() {
+                  return (
+                    <View style={{ marginLeft: 10 }}>
+                      <FontAwesome.Button
+                        name="arrow-left"
+                        size={24}
+                        color={iconColor}
+                        backgroundColor="transparent"
+                        onPress={() => {
+                          router.back();
+                        }}
+                      />
+                    </View>
+                  );
+                },
               }}
             />
             <Drawer.Screen
@@ -120,7 +140,11 @@ function RootLayoutNav() {
                 drawerLabel: "Recordatorios",
                 headerTitle: "Recordatorios",
                 drawerIcon: ({ size, color }) => (
-                  <Ionicons name="notifications-outline" size={size} color={color} />
+                  <Ionicons
+                    name="notifications-outline"
+                    size={size}
+                    color={color}
+                  />
                 ),
               }}
             />
@@ -130,7 +154,11 @@ function RootLayoutNav() {
                 drawerLabel: "Apuntes",
                 headerTitle: "Apuntes",
                 drawerIcon: ({ size, color }) => (
-                  <Ionicons name="document-text-outline" size={size} color={color} />
+                  <Ionicons
+                    name="document-text-outline"
+                    size={size}
+                    color={color}
+                  />
                 ),
               }}
             />
@@ -140,7 +168,11 @@ function RootLayoutNav() {
                 drawerLabel: "Tareas",
                 headerTitle: "Tareas",
                 drawerIcon: ({ size, color }) => (
-                  <Ionicons name="clipboard-outline" size={size} color={color} />
+                  <Ionicons
+                    name="clipboard-outline"
+                    size={size}
+                    color={color}
+                  />
                 ),
               }}
             />
@@ -150,7 +182,11 @@ function RootLayoutNav() {
                 drawerLabel: "Pruebas",
                 headerTitle: "Pruebas",
                 drawerIcon: ({ size, color }) => (
-                  <Ionicons name="document-attach-outline" size={size} color={color} />
+                  <Ionicons
+                    name="document-attach-outline"
+                    size={size}
+                    color={color}
+                  />
                 ),
               }}
             />
@@ -187,25 +223,25 @@ function RootLayoutNav() {
             <Drawer.Screen
               name="screens/schedule"
               options={{
-                drawerItemStyle: { height: 0 }
+                drawerItemStyle: { height: 0 },
               }}
             />
             <Drawer.Screen
               name="+not-found"
               options={{
-                drawerItemStyle: { height: 0 }
+                drawerItemStyle: { height: 0 },
               }}
             />
             <Drawer.Screen
               name="modal"
               options={{
-                drawerItemStyle: { height: 0 }
+                drawerItemStyle: { height: 0 },
               }}
             />
             <Drawer.Screen
               name="screens/AuthScreen"
               options={{
-                drawerItemStyle: { height: 0 }
+                drawerItemStyle: { height: 0 },
               }}
             />
           </Drawer>
