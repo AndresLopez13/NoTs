@@ -8,6 +8,7 @@ import {
   View as DefaultView,
   TextInput as DefaultTextInput,
   Button as DefaultButton,
+  TouchableOpacity as DefaultTouchableOpacity,
 } from "react-native";
 
 import Colors from "@/constants/Colors";
@@ -75,4 +76,9 @@ export function TextInput(props: TextInput) {
 export function Button(props: DefaultButton["props"]) {
   const color = useThemeColor({}, "primaryColor");
   return <DefaultButton color={color} {...props} />;
+}
+
+export function TouchableOpacity(props: DefaultTouchableOpacity["props"]) {
+  const color = useThemeColor({}, "primaryColor");
+  return <DefaultTouchableOpacity {...props} />;
 }
