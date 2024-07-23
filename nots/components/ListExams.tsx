@@ -1,6 +1,6 @@
 import { Exam } from "@/types/Reminder";
-import { Modal, StyleSheet, TouchableOpacity, TextInput } from "react-native";
-import { Text, View, Button } from "./Themed";
+import { Modal, StyleSheet } from "react-native";
+import { Text, View, TextInput, TouchableOpacity } from "./Themed";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
@@ -15,8 +15,8 @@ export default function ListExams({ exams }: Exam) {
 
   const openModal = (exam) => {
     setSelectedExam(exam);
-    setDate(new Date()); // Assumimos que 'exam.date' está em um formato válido
-    setTime(new Date()); // Assumimos que 'exam.time' está em um formato válido
+    setDate(new Date(`${exam.date.replace(/\//g, "-")}T00:00:00`));
+    setTime(new Date(`2021-01-01T${exam.time}:00`));
     setModalVisible(true);
   };
 
@@ -28,24 +28,30 @@ export default function ListExams({ exams }: Exam) {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
-    setSelectedExam({ ...selectedExam, date: currentDate.toISOString() });
+    setSelectedExam({
+      ...selectedExam,
+      date: currentDate.toISOString().split("T")[0],
+    });
   };
 
   const onTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || time;
     setShowTimePicker(false);
     setTime(currentTime);
-    setSelectedExam({ ...selectedExam, time: currentTime.toTimeString() });
+    setSelectedExam({
+      ...selectedExam,
+      time: currentTime.toISOString().split("T")[1].substring(0, 5),
+    });
   };
+  const maxLength = 100;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Exámenes</Text>
       {exams.map((exam) => (
-        <View
+        <TouchableOpacity
           key={exam.id}
           style={styles.examContainer}
-          onTouchEnd={() => openModal(exam)}
+          onPress={() => openModal(exam)}
         >
           <Text style={styles.subjectName}>{exam.subject_name}</Text>
           <Text style={styles.examName}>Nombre: {exam.name}</Text>
@@ -58,19 +64,28 @@ export default function ListExams({ exams }: Exam) {
             <MaterialIcons name="access-time" size={24} color="#333" />
             <Text style={styles.dateTimeText}>{exam.time}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
 
       {selectedExam && (
         <Modal
-          animationType="slide"
+          animationType="fade"
           transparent={true}
           visible={modalVisible}
           onRequestClose={closeModal}
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={styles.modalTitle}>Editar Examen</Text>
+              <View style={styles.modalHeaderText}>
+                <Text style={styles.modalText}>Edita tus datos</Text>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.closeButtonText}>✖</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.modalHintText}>Nombre</Text>
               <TextInput
                 style={styles.input}
                 onChangeText={(text) =>
@@ -78,44 +93,73 @@ export default function ListExams({ exams }: Exam) {
                 }
                 value={selectedExam.name}
               />
+              <Text style={styles.modalHintText}>Descripción</Text>
               <TextInput
                 style={[styles.input, styles.descriptionInput]}
                 onChangeText={(text) =>
                   setSelectedExam({ ...selectedExam, description: text })
                 }
                 value={selectedExam.description}
-                multiline
+                multiline={true}
+                maxLength={100}
+                textAlignVertical="top"
               />
-              {showDatePicker && (
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  display="calendar"
-                  onChange={onDateChange}
+              <Text style={styles.counter}>
+                {`${selectedExam.description.length}/${maxLength}`}
+              </Text>
+              <Text style={styles.modalHintText}>Fecha y Hora</Text>
+              <View style={styles.dateTimeInputContainer}>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={24}
+                  color="#333"
                 />
-              )}
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                style={styles.pickerButton}
-              >
-                <MaterialIcons name="calendar-today" size={24} color="#333" />
-              </TouchableOpacity>
-              {showTimePicker && (
-                <DateTimePicker
-                  value={time}
-                  mode="time"
-                  display="clock"
-                  onChange={onTimeChange}
-                />
-              )}
-              <TouchableOpacity
-                onPress={() => setShowTimePicker(true)}
-                style={styles.pickerButton}
-              >
+                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                  <Text style={styles.dateTimeText}>
+                    {date.toISOString().split("T")[0]}
+                  </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="calendar"
+                    onChange={onDateChange}
+                  />
+                )}
                 <MaterialIcons name="access-time" size={24} color="#333" />
-              </TouchableOpacity>
-              <Button title="Guardar Cambios" onPress={closeModal} />
-              <Button title="Cerrar" onPress={closeModal} />
+                <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+                  <Text style={styles.dateTimeText}>
+                    {time.toISOString().split("T")[1].substring(0, 5)}
+                  </Text>
+                </TouchableOpacity>
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={time}
+                    mode="time"
+                    display="clock"
+                    onChange={onTimeChange}
+                  />
+                )}
+              </View>
+              <View style={styles.buttonContainerModal}>
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={styles.buttonContainer}
+                >
+                  <Text style={[styles.buttonText, { color: "green" }]}>
+                    Guardar
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={closeModal}
+                  style={styles.buttonContainer}
+                >
+                  <Text style={[styles.buttonText, { color: "red" }]}>
+                    Eliminar
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -128,6 +172,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  descriptionInput: {
+    textAlign: "left",
+  },
+  counter: {
+    alignSelf: "flex-end",
+    color: "gray",
   },
   title: {
     fontSize: 22,
@@ -146,6 +197,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: "#ccc",
+    backgroundColor: "transparent",
     height: 160,
   },
   subjectName: {
@@ -175,37 +227,88 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    marginTop: 22,
+    backgroundColor: "transparent",
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "white",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    width: "90%",
   },
-  modalTitle: {
+  modalHeaderText: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+  },
+  modalText: {
     marginBottom: 15,
     textAlign: "center",
     fontSize: 20,
     fontWeight: "bold",
   },
+  modalHintText: {
+    textAlign: "left",
+    fontSize: 16,
+  },
+  closeButton: {
+    marginTop: -20,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "red",
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
-    width: 300,
     marginBottom: 10,
+    borderRadius: 5,
   },
   descriptionInput: {
-    minHeight: 100, // Aumentar altura para descripciones más largas
+    minHeight: 100,
   },
-  pickerButton: {
-    marginBottom: 10,
+  dateTimeInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    margin: 30,
+    backgroundColor: "transparent",
+  },
+  dateTimeInput: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  buttonContainerModal: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+  },
+  buttonContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "transparent",
+    padding: 10,
+    borderRadius: 10,
+    margin: 10,
+    width: "45%",
+    alignItems: "center",
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
