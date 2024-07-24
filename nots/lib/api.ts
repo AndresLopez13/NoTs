@@ -1,23 +1,7 @@
 import { Database } from "@/db_types";
 import { supabase } from "./supabase";
-import { Subject } from "./scheduleUtils";
+import { Subject } from "../types/Schedule";
 import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
-
-export const fetchAssignments = async () => {
-  const { data } = await supabase.auth.getSession();
-  const { data: assignments, error } = await supabase
-    .from("assignments")
-    .select("*")
-    .eq("user_id", data.session?.user.id!)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.log(error);
-    return [];
-  } else {
-    return assignments;
-  }
-};
 
 export const fetchSubjects = async () => {
   const { data } = await supabase.auth.getSession();
@@ -96,7 +80,58 @@ export const downloadAvatar = async (path: string): Promise<string> => {
   }
 };
 
-export type Assignments = Awaited<ReturnType<typeof fetchAssignments>>;
+export async function updateSubject(subjectId: string, updatedData: Partial<Subject>) {
+  const { data: currentSubject, error: fetchError } = await supabase
+    .from('subject')
+    .select('schedule')
+    .eq('id', subjectId)
+    .single();
+
+  if (fetchError) {
+    console.error('Error fetching subject:', fetchError);
+    throw fetchError;
+  }
+
+  let newSchedule = currentSubject?.schedule || [];
+  if (updatedData.schedule && updatedData.schedule.length > 0) {
+    const updatedDay = updatedData.schedule[0].day;
+    const existingDayIndex = newSchedule.findIndex((s: any) => s.day === updatedDay);
+    if (existingDayIndex !== -1) {
+      newSchedule[existingDayIndex] = updatedData.schedule[0];
+    } else {
+      newSchedule.push(updatedData.schedule[0]);
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('subject')
+    .update({
+      ...updatedData,
+      schedule: newSchedule
+    })
+    .eq('id', subjectId);
+
+  if (error) {
+    console.error('Error updating subject:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function deleteSubject(subjectId: string) {
+  const { data, error } = await supabase
+    .from('subject')
+    .delete()
+    .eq('id', subjectId);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
 export type Subjects = Awaited<ReturnType<typeof fetchSubjects>>;
 export type Reminders = Awaited<ReturnType<typeof fetchReminders>>;
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
