@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { processScheduleData } from '../../lib/scheduleUtils';
 import WeekSchedule from '../../components/WeekSchedule';
@@ -6,7 +6,7 @@ import { deleteDayFromSubject, deleteEntireSubject, fetchSubjectById, fetchSubje
 import { useUserInfo } from '@/lib/userContext';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';  
 import React from "react";
 import { ScheduleItem, DaySchedule } from '@/types/Schedule';
 import EditSubjectForm from '@/components/EditSubjectForm';
@@ -19,24 +19,26 @@ const ScheduleScreen = () => {
   const navigation = useNavigation();
   const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
 
-  useEffect(() => {
-    async function loadSchedule() {
-      if (!userId) {
-        console.error('UserId is undefined');
-        return;
-      }
-
-      try {
-        const subjects = await fetchSubjectsByUserId(userId);
-        const processedSchedule = processScheduleData(subjects);
-        setSchedule(processedSchedule);
-      } catch (error) {
-        console.error('Error loading schedule:', error);
-      }
+  const loadSchedule = useCallback(async () => {
+    if (!userId) {
+      console.error('UserId is undefined');
+      return;
     }
 
-    loadSchedule();
+    try {
+      const subjects = await fetchSubjectsByUserId(userId);
+      const processedSchedule = processScheduleData(subjects);
+      setSchedule(processedSchedule);
+    } catch (error) {
+      console.error('Error loading schedule:', error);
+    }
   }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadSchedule();
+    }, [loadSchedule])
+  );
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -117,7 +119,6 @@ const ScheduleScreen = () => {
     }
   };
 
-
   const updateScheduleState = (item: ScheduleItem, deleteType: 'day' | 'subject') => {
     setSchedule(prevSchedule => {
       const newSchedule = { ...prevSchedule };
@@ -134,7 +135,7 @@ const ScheduleScreen = () => {
       }
       return newSchedule;
     });
-  };  
+  };
 
   if (!userId) {
     return (
