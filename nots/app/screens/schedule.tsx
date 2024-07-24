@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { processScheduleData } from '../../lib/scheduleUtils';
 import WeekSchedule from '../../components/WeekSchedule';
-import { deleteSubject, fetchSubjectsByUserId } from '@/lib/api';
+import { deleteDayFromSubject, deleteEntireSubject, fetchSubjectById, fetchSubjectsByUserId } from '@/lib/api/Subject';
 import { useUserInfo } from '@/lib/userContext';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
@@ -68,32 +68,73 @@ const ScheduleScreen = () => {
       });
 
       setEditingItem(null);
-      Alert.alert('Éxito','Asignatura actualizado correctamente');
+      Alert.alert('Éxito', 'Asignatura actualizado correctamente');
     } catch (error) {
       console.error('Error updating schedule:', error);
-      Alert.alert('Error','Hubo un error al actualizar!');
+      Alert.alert('Error', 'Hubo un error al actualizar!');
     }
   };
 
-  const handleDelete = async (itemId: string) => {
+  const handleDelete = async (item: ScheduleItem) => {
     try {
-      await deleteSubject(itemId);
-  
-      setSchedule(prevSchedule => {
-        const newSchedule = { ...prevSchedule };
-        Object.keys(newSchedule).forEach(day => {
-          newSchedule[day] = newSchedule[day].filter(item => item.subjectId !== itemId);
-        });
-        return newSchedule;
-      });
-  
+      const subject = await fetchSubjectById(item.subjectId);
+      if (subject.schedule.length > 1) {
+        Alert.alert(
+          "Eliminar asignatura",
+          "¿Qué deseas eliminar?",
+          [
+            {
+              text: "Cancelar",
+              style: "cancel"
+            },
+            {
+              text: "Solo este día",
+              onPress: async () => {
+                await deleteDayFromSubject(item);
+                updateScheduleState(item, 'day');
+                Alert.alert('Éxito', 'Día de clase eliminado correctamente');
+              }
+            },
+            {
+              text: "Toda la asignatura",
+              onPress: async () => {
+                await deleteEntireSubject(item.subjectId);
+                updateScheduleState(item, 'subject');
+                Alert.alert('Éxito', 'Asignatura eliminada correctamente');
+              }
+            }
+          ]
+        );
+      } else {
+        await deleteEntireSubject(item.subjectId);
+        updateScheduleState(item, 'subject');
+        Alert.alert('Éxito', 'Asignatura eliminada correctamente');
+      }
       setEditingItem(null);
-      Alert.alert('Éxito', 'Asignatura eliminada correctamente');
     } catch (error) {
       console.error('Error deleting subject:', error);
-      Alert.alert('Error', 'Hubo un error al eliminar la asignatura. Por favor, intenta de nuevo.');
+      Alert.alert('Error', 'Hubo un error al eliminar. Por favor, intenta de nuevo.');
     }
   };
+
+
+  const updateScheduleState = (item: ScheduleItem, deleteType: 'day' | 'subject') => {
+    setSchedule(prevSchedule => {
+      const newSchedule = { ...prevSchedule };
+      if (deleteType === 'day') {
+        newSchedule[item.day] = newSchedule[item.day].filter(
+          scheduleItem => scheduleItem.id !== item.id
+        );
+      } else {
+        Object.keys(newSchedule).forEach(day => {
+          newSchedule[day] = newSchedule[day].filter(
+            scheduleItem => scheduleItem.subjectId !== item.subjectId
+          );
+        });
+      }
+      return newSchedule;
+    });
+  };  
 
   if (!userId) {
     return (

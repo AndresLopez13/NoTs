@@ -4,12 +4,12 @@ import { Text, View, TextInput, useThemeColor } from "./Themed";
 import DateTimePicker, { EvtTypes } from "@react-native-community/datetimepicker";
 import { ScheduleItem } from "../types/Schedule";
 import { MaterialIcons } from "@expo/vector-icons";
-import { updateSubject } from "@/lib/api";
+import { updateSubject } from "@/lib/api/Subject";
 
 interface Props {
   item: ScheduleItem;
   onSubmit: (updatedItem: ScheduleItem) => void;
-  onDelete: (itemId: string) => void;
+  onDelete: (item: ScheduleItem) => void;
   onClose: () => void;
 }
 
@@ -88,6 +88,11 @@ export default function EditSubjectForm({ item, onSubmit, onDelete, onClose }: P
     }
   };
 
+  const handleDelete = () => {
+    onDelete(item);
+    onClose();
+  };
+
   return (
     <View style={styles.centeredView}>
       <View style={styles.modalView}>
@@ -160,7 +165,7 @@ export default function EditSubjectForm({ item, onSubmit, onDelete, onClose }: P
           <TouchableOpacity onPress={handleUpdateSubject} style={styles.buttonContainer}>
             <Text style={[styles.buttonText, { color: "green" }]}>Guardar</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => onDelete(item.subjectId)} style={styles.buttonContainer}>
+          <TouchableOpacity onPress={handleDelete} style={styles.buttonContainer}>
             <Text style={[styles.buttonText, { color: "red" }]}>Eliminar</Text>
           </TouchableOpacity>
         </View>
