@@ -1,10 +1,8 @@
 import "react-native-url-polyfill/auto";
 import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "@/components/Themed";
-import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import AddSubjectForm from "@/components/AddSubjectForm";
-import { Subjects, fetchSubjects } from "@/lib/api";
 import Colors from "@/constants/Colors";
 
 interface DaySchedule {

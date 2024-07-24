@@ -139,11 +139,22 @@ export type Database = {
         Row: {
           date: string | null
           description: string | null
+          id: string | null
           name: string | null
           subject_name: string | null
           time: string | null
+          type: string | null
+          user_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {

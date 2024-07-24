@@ -1,26 +1,4 @@
-export interface ScheduleItem {
-  day: string;
-  startTime: string;
-  endTime: string;
-}
-
-export interface Subject {
-  id: string;
-  name: string;
-  nrc: number;  
-  classroom: string; 
-  schedule: ScheduleItem[];
-}
-
-export interface DaySchedule {
-  [key: string]: {
-    subject: string;
-    nrc: number; 
-    classroom: string;  
-    startTime: string;
-    endTime: string;
-  }[];
-}
+import { Subject, DaySchedule, ScheduleItem } from '../types/Schedule';
 
 export function processScheduleData(subjects: Subject[]): DaySchedule {
   const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -32,13 +10,17 @@ export function processScheduleData(subjects: Subject[]): DaySchedule {
 
   subjects.forEach(subject => {
     subject.schedule.forEach(item => {
-      schedule[item.day].push({
+      const scheduleItem: ScheduleItem = {
+        id: `${subject.id}-${item.day}-${item.startTime}`, 
+        subjectId: subject.id,
         subject: subject.name,
-        nrc: subject.nrc,  
-        classroom: subject.classroom, 
+        nrc: subject.nrc,
+        classroom: subject.classroom,
         startTime: item.startTime,
         endTime: item.endTime,
-      });
+        day: item.day,
+      };
+      schedule[item.day].push(scheduleItem);
     });
   });
 

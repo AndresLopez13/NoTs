@@ -3,26 +3,12 @@ import { View, Text, useThemeColor } from './Themed';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
+import { WeekScheduleProps, ScheduleItem } from '../types/Schedule'
 
-interface ScheduleItem {
-  subject: string;
-  nrc: number;
-  classroom: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface DaySchedule {
-  [key: string]: ScheduleItem[];
-}
-
-interface WeekScheduleProps {
-  schedule: DaySchedule;
-}
-
-const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
+const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule, onEditItem }) => {
   const dayTextColor = useThemeColor({ light: 'black', dark: 'black' }, 'text');
   const iconColor = useThemeColor({ light: '#4a4a4a', dark: '#dfdfdf' }, 'text');
+  const backgroundClassItem = useThemeColor({ light: 'white', dark: 'black' }, 'background');
   const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   const dayImages: { [key: string]: ImageSourcePropType } = {
     Lunes: require('../assets/images/schedule/monday.png'),
@@ -57,6 +43,10 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
     }));
   };
 
+  const handleEditItem = (item: ScheduleItem) => {
+    onEditItem(item);
+  };
+
   return (
     <ScrollView style={styles.container}>
       {days.map(day => (
@@ -73,7 +63,10 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
           {visibleDays[day] && (
             <View style={styles.subjectsContainer}>
               {schedule[day]?.map((item, index) => (
-                <View key={index} style={styles.classItem}>
+                <TouchableOpacity key={index} style={[styles.classItem, { backgroundColor: backgroundClassItem }]}
+                  onPress={() => handleEditItem(item)}
+                  activeOpacity={0.85}
+                >
                   <View style={styles.classItemRow}>
                     <Ionicons name="book-outline" size={20} style={[styles.icon, { color: iconColor }]} />
                     <Text style={styles.subjectName}>{item.subject}</Text>
@@ -86,7 +79,7 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule }) => {
                     <Ionicons name="time-outline" size={20} style={[styles.icon, { color: iconColor }]} />
                     <Text style={styles.description}>{item.startTime} - {item.endTime}</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           )}
@@ -130,7 +123,7 @@ const styles = StyleSheet.create({
   },
   subjectsContainer: {
     maxHeight: 400,
-    backgroundColor: 'transparent', 
+    backgroundColor: 'transparent',
   },
   classItem: {
     borderRadius: 10,
