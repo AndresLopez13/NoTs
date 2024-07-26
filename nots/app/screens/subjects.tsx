@@ -1,9 +1,10 @@
 import "react-native-url-polyfill/auto";
-import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { supabase } from "../../lib/supabase";
 import AddSubjectForm from "@/components/AddSubjectForm";
 import Colors from "@/constants/Colors";
+import { useNavigation } from "@react-navigation/native";
 
 interface DaySchedule {
   day: string;
@@ -12,6 +13,8 @@ interface DaySchedule {
 }
 
 export default function SubjectScreen() {
+  const navigation = useNavigation();
+
   const handleSubmit = async (
     name: string,
     nrc: number,
@@ -32,9 +35,10 @@ export default function SubjectScreen() {
 
     if (error) {
       console.log(error);
-      alert("Error al añadir asignatura");
+      Alert.alert("Error", "Error al añadir asignatura");
     } else {
-      alert("Asignatura creada correctamente");
+      Alert.alert("Éxito", "Asignatura creada correctamente");
+      navigation.navigate("screens/schedule");
     }
   };
 
