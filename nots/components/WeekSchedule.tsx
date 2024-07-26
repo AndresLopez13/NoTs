@@ -6,9 +6,11 @@ import moment from 'moment';
 import { WeekScheduleProps, ScheduleItem } from '../types/Schedule'
 
 const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule, onEditItem }) => {
-  const dayTextColor = useThemeColor({ light: 'black', dark: 'black' }, 'text');
+  const dayTextColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
   const iconColor = useThemeColor({ light: '#4a4a4a', dark: '#dfdfdf' }, 'text');
-  const backgroundClassItem = useThemeColor({ light: 'white', dark: 'black' }, 'background');
+  const backgroundClassItem = useThemeColor({ light: 'white', dark: '#302f32' }, 'background');
+  const dayCardBackground = useThemeColor({ light: '#e5e5e5', dark: '#3e3d40' }, 'background');
+  const shadowColor = useThemeColor({ light: '#000', dark: '#8e8e8e' }, 'card');
   const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   const dayImages: { [key: string]: ImageSourcePropType } = {
     Lunes: require('../assets/images/schedule/monday.png'),
@@ -50,22 +52,21 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule, onEditItem }) => 
   return (
     <ScrollView style={styles.container}>
       {days.map(day => (
-        <View key={day} style={styles.dayCard}>
+        <View key={day} style={[styles.dayCard, { backgroundColor: dayCardBackground }]}>
           <TouchableOpacity style={styles.dayHeader} onPress={() => toggleVisibility(day)}>
             <Image source={dayImages[day]} style={styles.dayIcon} />
             <Text style={[styles.dayHeaderText, { color: dayTextColor }]}>{day}</Text>
             <Ionicons
               name={visibleDays[day] ? 'chevron-up' : 'chevron-down'}
               size={24}
-              color="black"
+              color={dayTextColor}
             />
           </TouchableOpacity>
           {visibleDays[day] && (
             <View style={styles.subjectsContainer}>
               {schedule[day]?.map((item, index) => (
-                <TouchableOpacity key={index} style={[styles.classItem, { backgroundColor: backgroundClassItem }]}
+                <TouchableOpacity key={index} style={[styles.classItem, { backgroundColor: backgroundClassItem }, { shadowColor }]}
                   onPress={() => handleEditItem(item)}
-                  activeOpacity={0.85}
                 >
                   <View style={styles.classItemRow}>
                     <Ionicons name="book-outline" size={20} style={[styles.icon, { color: iconColor }]} />
@@ -98,7 +99,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   dayCard: {
-    backgroundColor: '#e5e5e5',
     borderRadius: 15,
     padding: 10,
     marginBottom: 10,
@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#e5e5e5'
   },
   dayHeaderText: {
     fontWeight: 'bold',
@@ -129,7 +128,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 7,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -142,6 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 5,
+    backgroundColor: 'transparent',
   },
   icon: {
     marginRight: 10,
