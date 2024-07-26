@@ -3,7 +3,7 @@ import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { processScheduleData } from '../../lib/scheduleUtils';
 import WeekSchedule from '../../components/WeekSchedule';
 import { deleteDayFromSubject, deleteEntireSubject, fetchSubjectById, fetchSubjectsByUserId } from '@/lib/api/Subject';
-import { useUserInfo } from '@/lib/userContext';
+import { useUserInfo } from '@/lib/context/userContext';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';  
