@@ -8,6 +8,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { useUserInfo } from "@/lib/context/userContext";
+import { useReminders } from "@/lib/context/remindersContext";
+import { validateUser } from "@/utils/user-validation";
 
 interface MenuItem {
   title: string;
@@ -27,6 +29,7 @@ export default function MenuScreen() {
     "text"
   );
   const { session } = useUserInfo();
+  const { reminders, refreshReminders } = useReminders();
 
   const fetchUser = async () => {
     const { data: info } = await supabase
@@ -53,30 +56,30 @@ export default function MenuScreen() {
           schema: "public",
           table: "profiles",
         },
-        (payload) => {
-          if (payload.eventType === "UPDATE") {
+        async (payload) => {
+          if (await validateUser(payload)) {
             fetchUser().then((metadata) => {
               if (metadata) {
                 setUserName(metadata || "user");
               }
             });
-            console.log("User updated");
           }
         }
       )
       .subscribe();
-
     supabase
-      .channel("reminders_changes")
+      .channel("subject_changes")
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
-          table: "reminders",
+          table: "subject",
         },
-        (payload) => {
-          console.log("Reminder updated");
+        async (payload) => {
+          if (await validateUser(payload)) {
+            refreshReminders();
+          }
         }
       )
       .subscribe();

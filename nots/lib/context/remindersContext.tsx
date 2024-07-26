@@ -1,26 +1,62 @@
-import { createContext, useState, useContext, ReactNode } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import { supabase } from "../supabase";
+import { useUserInfo } from "./userContext";
 
-const ReminderContext = createContext({});
+export interface Reminder {
+  id: string | null;
+  name: string | null;
+  description: string | null;
+  date: string | null;
+  time: string | null;
+  subject_name: string | null;
+  user_id: string | null;
+  type: string | null;
+}
 
-export const useReminders = () => useContext(ReminderContext);
+interface ReminderContextType {
+  reminders: Reminder[];
+  refreshReminders: () => Promise<void>;
+}
 
-export const ReminderProvider = ({ children }: { children: ReactNode }) => {
-  const [reminders, setReminders] = useState([]);
+const ReminderContext = createContext<ReminderContextType>({
+  reminders: [],
+  refreshReminders: async () => {},
+});
 
-  const refreshExams = async () => {
-    try {
-      const { data, error } = await supabase.from("reminders").select("*");
-      if (error) throw error;
-      setReminders(data);
-    } catch (error) {
-      console.error("Error fetching reminders: ", error.message);
+export function ReminderProvider({ children }: { children: ReactNode }) {
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+
+  useEffect(() => {
+    refreshReminders();
+  }, []);
+
+  const refreshReminders = async () => {
+    const { data } = await supabase.auth.getSession();
+    const { data: reminders, error } = await supabase
+      .from("reminders_with_subjects")
+      .select("*")
+      .eq("user_id", data.session?.user.id!);
+
+    if (error) {
+      console.error("Error fetching reminders:", error);
+    } else {
+      setReminders(reminders);
     }
   };
 
   return (
-    <ReminderContext.Provider value={{ reminders, refreshExams }}>
+    <ReminderContext.Provider value={{ reminders, refreshReminders }}>
       {children}
     </ReminderContext.Provider>
   );
-};
+}
+
+export function useReminders() {
+  return useContext(ReminderContext);
+}
