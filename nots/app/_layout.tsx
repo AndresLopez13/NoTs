@@ -74,11 +74,11 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <ReminderProvider>
+    <ReminderProvider>
+      <AuthProvider>
         <RootLayoutNav />
-      </ReminderProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ReminderProvider>
   );
 }
 
