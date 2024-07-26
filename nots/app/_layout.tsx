@@ -11,13 +11,14 @@ import { useEffect } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import AuthScreen from "./screens/AuthScreen";
-import { AuthProvider, useUserInfo } from "@/lib/userContext";
+import { AuthProvider, useUserInfo } from "@/lib/context/userContext";
 import { Drawer } from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useThemeColor } from "@/components/Themed";
 import { AppState, TouchableOpacity } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { ReminderProvider } from "@/lib/context/remindersContext";
 
 AppState.addEventListener("change", (state) => {
   if (state === "active") {
@@ -74,7 +75,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <ReminderProvider>
+        <RootLayoutNav />
+      </ReminderProvider>
     </AuthProvider>
   );
 }

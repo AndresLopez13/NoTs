@@ -1,8 +1,8 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { Session } from "@supabase/supabase-js";
-import { Profile } from "./api";
-import { supabase } from "./supabase";
+import { Profile } from "../api";
+import { supabase } from "../supabase";
 
 export interface UserInfo {
   session: Session | null;

@@ -28,6 +28,32 @@ export const fetchReminders = async () => {
   }
 };
 
+export const updateReminder = async (
+  type: string,
+  name: string,
+  description: string,
+  date?: string,
+  time?: string,
+  subject_id?: string,
+  reminder_id?: string
+) => {
+  const { error } = await supabase
+    .from("reminders")
+    .update({
+      type,
+      name,
+      description,
+      date,
+      time,
+      subject_id,
+    })
+    .eq("id", reminder_id!);
+  if (error) {
+    return false;
+  }
+  return true;
+};
+
 export const downloadAvatar = async (path: string): Promise<string> => {
   try {
     const { data, error } = await supabase.storage

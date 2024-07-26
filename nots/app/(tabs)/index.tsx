@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import React from "react";
-import { useUserInfo } from "@/lib/userContext";
+import { useUserInfo } from "@/lib/context/userContext";
 
 interface MenuItem {
   title: string;
@@ -28,15 +28,16 @@ export default function MenuScreen() {
   );
   const { session } = useUserInfo();
 
+  const fetchUser = async () => {
+    const { data: info } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", session!.user.id)
+      .single();
+    return info?.username;
+  };
+
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: info } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", session!.user.id)
-        .single();
-      return info?.username;
-    };
     fetchUser().then((metadata) => {
       if (metadata) {
         setUserName(metadata || "user");
@@ -61,6 +62,21 @@ export default function MenuScreen() {
             });
             console.log("User updated");
           }
+        }
+      )
+      .subscribe();
+
+    supabase
+      .channel("reminders_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "reminders",
+        },
+        (payload) => {
+          console.log("Reminder updated");
         }
       )
       .subscribe();

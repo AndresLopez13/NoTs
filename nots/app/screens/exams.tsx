@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
 import { Text, View } from "@/components/Themed";
-import { useUserInfo } from "@/lib/userContext";
+import { useUserInfo } from "@/lib/context/userContext";
 import { useQuery } from "@supabase-cache-helpers/postgrest-swr";
 import { supabase } from "@/lib/supabase";
 import ListExams from "@/components/ListExams";
-import { Exam } from "@/types/Reminder";
+import { useReminders } from "@/lib/context/remindersContext";
 
 export default function ExamScreen() {
   const { session } = useUserInfo();
@@ -19,7 +19,9 @@ export default function ExamScreen() {
       revalidateOnReconnect: false,
     }
   );
-  console.log(data);
+  const { exams, refreshExams } = useReminders();
+  console.log("exams", exams);
+
   if (!data) {
     return <Text>Cargando...</Text>;
   }

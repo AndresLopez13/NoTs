@@ -72,11 +72,16 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
   };
 
   const formatDate = (date) => {
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   const formatTime = (time) => {
-    return `${time.getHours()}:${time.getMinutes()}`;
+    const hours = time.getHours().toString().padStart(2, "0");
+    const minutes = time.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
   };
 
   const fetchSubjects = async () => {
