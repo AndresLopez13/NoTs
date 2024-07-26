@@ -19,6 +19,7 @@ import type {
   SignInWithPasswordCredentials,
   SignUpWithPasswordCredentials,
 } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 
 const strongPasswordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~])[A-Za-z\d!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~]{8,}$/;
@@ -79,13 +80,28 @@ export default function AuthForm({
       onSignUp({
         email,
         password,
-        options: { data: { username: email.split("@")[0] } },
+        options: {
+          data: { username: email.split("@")[0] },
+          redirectTo: 'https://nextjs-boilerplate-dusky-two-90.vercel.app/email-confirmated',
+        } as { emailRedirectTo?: string; data?: object; captchaToken?: string },
       });
       Alert.alert(
         "Registro exitoso",
         "Se ha enviado un correo de confirmación a su email."
       );
       setMode("login");
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://nextjs-boilerplate-dusky-two-90.vercel.app/reset-password'
+      });
+      if (error) throw error;
+      Alert.alert("Correo enviado", "Se ha enviado un correo para restablecer tu contraseña.");
+    } catch (error) {
+      Alert.alert("Error", "Ocurrió un error inesperado.");
     }
   };
 
@@ -142,6 +158,17 @@ export default function AuthForm({
                 style={styles.submitButton}
               />
               <View style={styles.footer}>
+                {mode === "login" && (
+                  <TouchableOpacity onPress={handleForgotPassword}>
+                    <Text
+                      style={[
+                        styles.forgotPasswordText,
+                      ]}
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 <Text
                   style={[
                     styles.switchText,
@@ -287,7 +314,13 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 32,
+    marginTop: 26,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: "#3897f0",
+    marginBottom: 18,
+    textDecorationLine: "underline",
   },
   switchText: {
     fontSize: 14,
