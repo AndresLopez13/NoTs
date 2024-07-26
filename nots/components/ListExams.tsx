@@ -1,11 +1,12 @@
-import { Exam } from "@/types/Reminder";
 import { Modal, StyleSheet } from "react-native";
 import { Text, View, TextInput, TouchableOpacity } from "./Themed";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
+import { updateReminder } from "@/lib/api";
 
 export default function ListExams({ exams }: Exam) {
+  
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExam, setSelectedExam] = useState(null);
   const [date, setDate] = useState(new Date());
@@ -13,10 +14,12 @@ export default function ListExams({ exams }: Exam) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+  const maxLength = 100;
+
   const openModal = (exam) => {
     setSelectedExam(exam);
-    setDate(new Date(`${exam.date.replace(/\//g, "-")}T00:00:00`));
-    setTime(new Date(`2021-01-01T${exam.time}:00`));
+    setDate(new Date(exam.date.replace(/\//g, "-") + "T00:00:00"));
+    setTime(new Date(`1970-01-01T${exam.time}:00`));
     setModalVisible(true);
   };
 
@@ -40,10 +43,40 @@ export default function ListExams({ exams }: Exam) {
     setTime(currentTime);
     setSelectedExam({
       ...selectedExam,
-      time: currentTime.toISOString().split("T")[1].substring(0, 5),
+      time: formatTime(currentTime),
     });
   };
-  const maxLength = 100;
+
+  const formatTime = (time) => {
+    const hours = time.getHours().toString().padStart(2, "0");
+    const minutes = time.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleEditExam = async () => {
+    const result = await updateReminder(
+      "Prueba",
+      selectedExam.name,
+      selectedExam.description,
+      selectedExam.date,
+      selectedExam.time,
+      selectedExam.subject_id,
+      selectedExam.id
+    );
+    if (!result) {
+      alert("Error al actualizar examen");
+      return;
+    }
+    alert("Examen actualizado");
+    closeModal();
+  };
 
   return (
     <View style={styles.container}>
@@ -60,7 +93,11 @@ export default function ListExams({ exams }: Exam) {
           </Text>
           <View style={styles.dateTimeContainer}>
             <MaterialCommunityIcons name="calendar" size={24} color="#333" />
-            <Text style={styles.dateTimeText}>{exam.date}</Text>
+            <Text style={styles.dateTimeText}>
+              {formatDate(
+                new Date(`${exam.date.replace(/\//g, "-")}T00:00:00`)
+              )}
+            </Text>
             <MaterialIcons name="access-time" size={24} color="#333" />
             <Text style={styles.dateTimeText}>{exam.time}</Text>
           </View>
@@ -115,9 +152,7 @@ export default function ListExams({ exams }: Exam) {
                   color="#333"
                 />
                 <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                  <Text style={styles.dateTimeText}>
-                    {date.toISOString().split("T")[0]}
-                  </Text>
+                  <Text style={styles.dateTimeText}>{formatDate(date)}</Text>
                 </TouchableOpacity>
                 {showDatePicker && (
                   <DateTimePicker
@@ -129,22 +164,20 @@ export default function ListExams({ exams }: Exam) {
                 )}
                 <MaterialIcons name="access-time" size={24} color="#333" />
                 <TouchableOpacity onPress={() => setShowTimePicker(true)}>
-                  <Text style={styles.dateTimeText}>
-                    {time.toISOString().split("T")[1].substring(0, 5)}
-                  </Text>
+                  <Text style={styles.dateTimeText}>{formatTime(time)}</Text>
                 </TouchableOpacity>
                 {showTimePicker && (
                   <DateTimePicker
                     value={time}
                     mode="time"
-                    display="clock"
+                    display="spinner"
                     onChange={onTimeChange}
                   />
                 )}
               </View>
               <View style={styles.buttonContainerModal}>
                 <TouchableOpacity
-                  onPress={closeModal}
+                  onPress={handleEditExam}
                   style={styles.buttonContainer}
                 >
                   <Text style={[styles.buttonText, { color: "green" }]}>
@@ -175,6 +208,7 @@ const styles = StyleSheet.create({
   },
   descriptionInput: {
     textAlign: "left",
+    minHeight: 100,
   },
   counter: {
     alignSelf: "flex-end",
@@ -277,9 +311,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
   },
-  descriptionInput: {
-    minHeight: 100,
-  },
+
   dateTimeInputContainer: {
     flexDirection: "row",
     alignItems: "center",

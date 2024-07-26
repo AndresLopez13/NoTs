@@ -9,14 +9,6 @@ export interface Reminder {
   subject_id: string;
 }
 
-export interface Exam {
-  exams: Reminder[];
-}
-
-export interface Task {
-  tasks: Reminder[];
-}
-
-export interface Notes {
-  notes: Reminder[];
+export interface Reminders {
+  reminders: Reminder[];
 }

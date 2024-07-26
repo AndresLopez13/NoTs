@@ -11,7 +11,7 @@ const WeekSchedule: React.FC<WeekScheduleProps> = ({ schedule, onEditItem }) => 
   const backgroundClassItem = useThemeColor({ light: 'white', dark: 'black' }, 'background');
   const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   const dayImages: { [key: string]: ImageSourcePropType } = {
-    Lunes: require('../assets/images/schedule/monday.png'),
+    updateSubject: require('../assets/images/schedule/monday.png'),
     Martes: require('../assets/images/schedule/tuesday.png'),
     Miércoles: require('../assets/images/schedule/wednesday.png'),
     Jueves: require('../assets/images/schedule/thursday.png'),
