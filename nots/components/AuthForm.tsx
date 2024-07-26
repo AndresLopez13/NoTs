@@ -55,9 +55,22 @@ export default function AuthForm({
   const validateEmail = (email) => email.includes("@espe.edu.ec");
   const validatePassword = (password) => strongPasswordRegex.test(password);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (mode === "login") {
-      onLogin({ email, password });
+      try {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        onLogin({ email, password });
+      } catch (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          Alert.alert("Error", "El usuario no se encuentra registrado o las credenciales son incorrectas");
+        } else {
+          Alert.alert("Error", `Ocurrió un error inesperado: ${error.message}`);
+        }
+      }
     } else {
       if (!validateEmail(email)) {
         Alert.alert(
@@ -77,31 +90,46 @@ export default function AuthForm({
         );
         return;
       }
-      onSignUp({
-        email,
-        password,
-        options: {
-          data: { username: email.split("@")[0] },
-          redirectTo: 'https://nextjs-boilerplate-dusky-two-90.vercel.app/email-confirmated',
-        } as { emailRedirectTo?: string; data?: object; captchaToken?: string },
-      });
-      Alert.alert(
-        "Registro exitoso",
-        "Se ha enviado un correo de confirmación a su email."
-      );
-      setMode("login");
+      try {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { username: email.split("@")[0] },
+          }
+        });
+        if (error) throw error;
+        Alert.alert(
+          "Registro exitoso",
+          "Se ha enviado un correo de confirmación a su email."
+        );
+        setMode("login");
+      } catch (error) {
+        if (error.message.includes("User already registered")) {
+          Alert.alert("Error", "Este correo electrónico ya está registrado");
+        } else {
+          console.error('Error en el registro:', error.message);
+          Alert.alert("Error", "Ocurrió un error durante el registro. Por favor, intente nuevamente.");
+        }
+      }
     }
   };
 
   const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert("Advertencia", "Por favor ingresa tu correo electrónico.");
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://nextjs-boilerplate-dusky-two-90.vercel.app/reset-password'
       });
       if (error) throw error;
-      Alert.alert("Correo enviado", "Se ha enviado un correo para restablecer tu contraseña.");
+      Alert.alert("Correo enviado", "Si el correo está registrado, se ha enviado un enlace para restablecer tu contraseña.");
     } catch (error) {
-      Alert.alert("Error", "Ocurrió un error inesperado.");
+      console.error('Error en resetPasswordForEmail:', error.message);
+      Alert.alert("Información", "Si el correo está registrado, se enviará un enlace para restablecer la contraseña.");
     }
   };
 
@@ -155,7 +183,6 @@ export default function AuthForm({
                 title={mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
                 onPress={handleSubmit}
                 disabled={loading || !email || !password}
-                style={styles.submitButton}
               />
               <View style={styles.footer}>
                 {mode === "login" && (
@@ -182,7 +209,6 @@ export default function AuthForm({
                 <Button
                   title={mode === "login" ? "Crear cuenta" : "Inicia sesión"}
                   onPress={toggleMode}
-                  style={styles.switchButton}
                 />
               </View>
             </View>
@@ -296,20 +322,6 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
-  submitButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 30, // Radio de bordes más redondo
-    backgroundColor: "#3897f0",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-    elevation: 5, // Sombra para Android
-    shadowColor: "#000", // Sombra para iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
   footer: {
     flexDirection: "column",
     justifyContent: "center",
@@ -329,18 +341,6 @@ const styles = StyleSheet.create({
   },
   switchTextDark: {
     color: "#aaa",
-  },
-  switchButton: {
-    padding: 12,
-    borderRadius: 50, // Radio de bordes más redondo
-    backgroundColor: "#3897f0",
-    alignItems: "center",
-    width: "50%",
-    elevation: 5, // Sombra para Android
-    shadowColor: "#000", // Sombra para iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
   },
 });
 

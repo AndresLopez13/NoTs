@@ -24,6 +24,7 @@ export default function EditSubjectForm({ item, onSubmit, onDelete, onClose }: P
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [error, setError] = useState("");
   const iconColor = useThemeColor({ light: '#4a4a4a', dark: '#dfdfdf' }, 'text');
+  const borderModalColor = useThemeColor({ light: '#666666', dark: '#b4b5b5' }, 'card');
 
   const handleTimeChange = (
     event: {
@@ -54,7 +55,7 @@ export default function EditSubjectForm({ item, onSubmit, onDelete, onClose }: P
     const startDateTime = new Date(`1970-01-01T${formattedStartTime}:00`);
     const endDateTime = new Date(`1970-01-01T${formattedEndTime}:00`);
 
-    if (startDateTime >= endDateTime) {
+    if (startDateTime > endDateTime) {
       setError("La hora de inicio debe ser menor que la hora de fin.");
       return;
     }
@@ -95,7 +96,7 @@ export default function EditSubjectForm({ item, onSubmit, onDelete, onClose }: P
 
   return (
     <View style={styles.centeredView}>
-      <View style={styles.modalView}>
+      <View style={[styles.modalView, { borderColor: borderModalColor }]}>
         <View style={styles.modalHeaderText}>
           <Text style={styles.modalText}>Editar asignatura</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -169,6 +170,7 @@ export default function EditSubjectForm({ item, onSubmit, onDelete, onClose }: P
             <Text style={[styles.buttonText, { color: "red" }]}>Eliminar</Text>
           </TouchableOpacity>
         </View>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </View>
     </View>
   );
@@ -254,7 +256,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 35,
     borderWidth: 1,
-    borderColor: "white",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
