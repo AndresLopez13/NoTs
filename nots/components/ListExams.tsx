@@ -1,5 +1,5 @@
 import { Modal, StyleSheet } from "react-native";
-import { Text, View, TextInput, TouchableOpacity } from "./Themed";
+import { Text, View, TextInput, TouchableOpacity, useThemeColor } from "./Themed";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
@@ -13,6 +13,7 @@ export default function ListExams({ exams }: Exam) {
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const iconColor = useThemeColor({ light: '#4a4a4a', dark: '#dfdfdf' }, 'text');
 
   const maxLength = 100;
 
@@ -92,13 +93,13 @@ export default function ListExams({ exams }: Exam) {
             Descripción: {exam.description.slice(0, 60)}...
           </Text>
           <View style={styles.dateTimeContainer}>
-            <MaterialCommunityIcons name="calendar" size={24} color="#333" />
+            <MaterialCommunityIcons name="calendar" size={24} color={iconColor} />
             <Text style={styles.dateTimeText}>
               {formatDate(
                 new Date(`${exam.date.replace(/\//g, "-")}T00:00:00`)
               )}
             </Text>
-            <MaterialIcons name="access-time" size={24} color="#333" />
+            <MaterialIcons name="access-time" size={24} color={iconColor} />
             <Text style={styles.dateTimeText}>{exam.time}</Text>
           </View>
         </TouchableOpacity>
@@ -149,7 +150,7 @@ export default function ListExams({ exams }: Exam) {
                 <MaterialCommunityIcons
                   name="calendar"
                   size={24}
-                  color="#333"
+                  color={iconColor}
                 />
                 <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                   <Text style={styles.dateTimeText}>{formatDate(date)}</Text>
@@ -162,7 +163,7 @@ export default function ListExams({ exams }: Exam) {
                     onChange={onDateChange}
                   />
                 )}
-                <MaterialIcons name="access-time" size={24} color="#333" />
+                <MaterialIcons name="access-time" size={24} color={iconColor} />
                 <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                   <Text style={styles.dateTimeText}>{formatTime(time)}</Text>
                 </TouchableOpacity>
