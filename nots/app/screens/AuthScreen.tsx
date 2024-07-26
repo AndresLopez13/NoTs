@@ -10,6 +10,10 @@ export default function AuthScreen() {
   const errorMessages: { [key: string]: string } = {
     "Invalid login credentials": "Credenciales de inicio de sesión inválidas",
     "User not found": "Usuario no encontrado",
+    "User already exists": "El usuario ya existe",
+    "Invalid password": "Contraseña inválida",
+    "Invalid email": "Correo electrónico inválido",
+    "Email not confirmed": "Correo electrónico no confirmado",
   };
 
   const handleSignup = async (credentials: SignUpWithPasswordCredentials) => {

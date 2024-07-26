@@ -1,20 +1,15 @@
-import { useEffect, useState } from "react";
-import { Alert, Modal, StyleSheet, TouchableOpacity } from "react-native";
-import { processScheduleData } from "../../lib/scheduleUtils";
-import WeekSchedule from "../../components/WeekSchedule";
-import {
-  deleteDayFromSubject,
-  deleteEntireSubject,
-  fetchSubjectById,
-  fetchSubjectsByUserId,
-} from "@/lib/api/Subject";
-import { useUserInfo } from "@/lib/context/userContext";
-import { Text, View, useThemeColor } from "@/components/Themed";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState, useCallback } from 'react';
+import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { processScheduleData } from '../../lib/scheduleUtils';
+import WeekSchedule from '../../components/WeekSchedule';
+import { deleteDayFromSubject, deleteEntireSubject, fetchSubjectById, fetchSubjectsByUserId } from '@/lib/api/Subject';
+import { useUserInfo } from '@/lib/userContext';
+import { Text, View, useThemeColor } from '@/components/Themed';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';  
 import React from "react";
-import { ScheduleItem, DaySchedule } from "@/types/Schedule";
-import EditSubjectForm from "@/components/EditSubjectForm";
+import { ScheduleItem, DaySchedule } from '@/types/Schedule';
+import EditSubjectForm from '@/components/EditSubjectForm';
 
 const ScheduleScreen = () => {
   const [schedule, setSchedule] = useState<DaySchedule | null>(null);
@@ -22,29 +17,28 @@ const ScheduleScreen = () => {
   const { session: userSession } = useUserInfo();
   const userId = userSession?.user.id;
   const navigation = useNavigation();
-  const menuIconColor = useThemeColor(
-    { light: "black", dark: "white" },
-    "text"
-  );
+  const menuIconColor = useThemeColor({ light: 'black', dark: 'white' }, 'text');
 
-  useEffect(() => {
-    async function loadSchedule() {
-      if (!userId) {
-        console.error("UserId is undefined");
-        return;
-      }
-
-      try {
-        const subjects = await fetchSubjectsByUserId(userId);
-        const processedSchedule = processScheduleData(subjects);
-        setSchedule(processedSchedule);
-      } catch (error) {
-        console.error("Error loading schedule:", error);
-      }
+  const loadSchedule = useCallback(async () => {
+    if (!userId) {
+      console.error('UserId is undefined');
+      return;
     }
 
-    loadSchedule();
+    try {
+      const subjects = await fetchSubjectsByUserId(userId);
+      const processedSchedule = processScheduleData(subjects);
+      setSchedule(processedSchedule);
+    } catch (error) {
+      console.error('Error loading schedule:', error);
+    }
   }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadSchedule();
+    }, [loadSchedule])
+  );
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -65,12 +59,10 @@ const ScheduleScreen = () => {
 
   const handleUpdateItem = async (updatedItem: ScheduleItem) => {
     try {
-      setSchedule((prevSchedule) => {
+      setSchedule(prevSchedule => {
         const newSchedule = { ...prevSchedule };
         const daySchedule = newSchedule[updatedItem.day];
-        const itemIndex = daySchedule.findIndex(
-          (item) => item.id === updatedItem.id
-        );
+        const itemIndex = daySchedule.findIndex(item => item.id === updatedItem.id);
         if (itemIndex !== -1) {
           daySchedule[itemIndex] = updatedItem;
         }
@@ -78,10 +70,10 @@ const ScheduleScreen = () => {
       });
 
       setEditingItem(null);
-      Alert.alert("Éxito", "Asignatura actualizado correctamente");
+      Alert.alert('Éxito', 'Asignatura actualizado correctamente');
     } catch (error) {
-      console.error("Error updating schedule:", error);
-      Alert.alert("Error", "Hubo un error al actualizar!");
+      console.error('Error updating schedule:', error);
+      Alert.alert('Error', 'Hubo un error al actualizar!');
     }
   };
 
@@ -89,57 +81,55 @@ const ScheduleScreen = () => {
     try {
       const subject = await fetchSubjectById(item.subjectId);
       if (subject.schedule.length > 1) {
-        Alert.alert("Eliminar asignatura", "¿Qué deseas eliminar?", [
-          {
-            text: "Cancelar",
-            style: "cancel",
-          },
-          {
-            text: "Solo este día",
-            onPress: async () => {
-              await deleteDayFromSubject(item);
-              updateScheduleState(item, "day");
-              Alert.alert("Éxito", "Día de clase eliminado correctamente");
+        Alert.alert(
+          "Eliminar asignatura",
+          "¿Qué deseas eliminar?",
+          [
+            {
+              text: "Cancelar",
+              style: "cancel"
             },
-          },
-          {
-            text: "Toda la asignatura",
-            onPress: async () => {
-              await deleteEntireSubject(item.subjectId);
-              updateScheduleState(item, "subject");
-              Alert.alert("Éxito", "Asignatura eliminada correctamente");
+            {
+              text: "Solo este día",
+              onPress: async () => {
+                await deleteDayFromSubject(item);
+                updateScheduleState(item, 'day');
+                Alert.alert('Éxito', 'Día de clase eliminado correctamente');
+              }
             },
-          },
-        ]);
+            {
+              text: "Toda la asignatura",
+              onPress: async () => {
+                await deleteEntireSubject(item.subjectId);
+                updateScheduleState(item, 'subject');
+                Alert.alert('Éxito', 'Asignatura eliminada correctamente');
+              }
+            }
+          ]
+        );
       } else {
         await deleteEntireSubject(item.subjectId);
-        updateScheduleState(item, "subject");
-        Alert.alert("Éxito", "Asignatura eliminada correctamente");
+        updateScheduleState(item, 'subject');
+        Alert.alert('Éxito', 'Asignatura eliminada correctamente');
       }
       setEditingItem(null);
     } catch (error) {
-      console.error("Error deleting subject:", error);
-      Alert.alert(
-        "Error",
-        "Hubo un error al eliminar. Por favor, intenta de nuevo."
-      );
+      console.error('Error deleting subject:', error);
+      Alert.alert('Error', 'Hubo un error al eliminar. Por favor, intenta de nuevo.');
     }
   };
 
-  const updateScheduleState = (
-    item: ScheduleItem,
-    deleteType: "day" | "subject"
-  ) => {
-    setSchedule((prevSchedule) => {
+  const updateScheduleState = (item: ScheduleItem, deleteType: 'day' | 'subject') => {
+    setSchedule(prevSchedule => {
       const newSchedule = { ...prevSchedule };
-      if (deleteType === "day") {
+      if (deleteType === 'day') {
         newSchedule[item.day] = newSchedule[item.day].filter(
-          (scheduleItem) => scheduleItem.id !== item.id
+          scheduleItem => scheduleItem.id !== item.id
         );
       } else {
-        Object.keys(newSchedule).forEach((day) => {
+        Object.keys(newSchedule).forEach(day => {
           newSchedule[day] = newSchedule[day].filter(
-            (scheduleItem) => scheduleItem.subjectId !== item.subjectId
+            scheduleItem => scheduleItem.subjectId !== item.subjectId
           );
         });
       }
@@ -188,18 +178,18 @@ const ScheduleScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     padding: 5,
   },
   centeredContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   largeText: {
     fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
