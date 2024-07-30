@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "795866897451",
+    "project_id": "exponotifications-9a85d",
+    "storage_bucket": "exponotifications-9a85d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:795866897451:android:3fafc5fcbd5932c7495e6e",
+        "android_client_info": {
+          "package_name": "com.nots"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLYK-yn47WFz7EYAlP7zAGrg9hasOZoPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

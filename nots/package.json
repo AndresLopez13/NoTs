@@ -50,7 +50,9 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "expo-notifications": "~0.28.12",
+    "expo-device": "~6.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
