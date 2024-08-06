@@ -10,6 +10,7 @@ import React from "react";
 import { useUserInfo } from "@/lib/context/userContext";
 import { useReminders } from "@/lib/context/remindersContext";
 import { validateUser } from "@/utils/user-validation";
+import { usePushNotifications } from "../usePushNotifications";
 
 interface MenuItem {
   title: string;
@@ -30,6 +31,9 @@ export default function MenuScreen() {
   );
   const { session } = useUserInfo();
   const { reminders, refreshReminders } = useReminders();
+  const { expoPushToken, notification } = usePushNotifications();
+
+  const data = JSON.stringify(notification, undefined, 2);
 
   const fetchUser = async () => {
     const { data: info } = await supabase

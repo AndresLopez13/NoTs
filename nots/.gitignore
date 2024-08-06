@@ -43,3 +43,6 @@ expo-env.d.ts
 
 #VS Code files
 .vscode/
+
+# google-services credentials
+android/app/google-services.json

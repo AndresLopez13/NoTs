@@ -19,7 +19,8 @@ export default function SubjectScreen() {
     name: string,
     nrc: number,
     classroom: string,
-    schedule: DaySchedule[]
+    schedule: DaySchedule[],
+    notification_ids: String[]
   ) => {
     const { data } = await supabase.auth.getSession();
     const { error } = await supabase
@@ -30,6 +31,7 @@ export default function SubjectScreen() {
         classroom,
         user_id: data.session?.user.id!,
         schedule,
+        notification_ids,
       })
       .select();
 

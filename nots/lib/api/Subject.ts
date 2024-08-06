@@ -1,5 +1,7 @@
 import { supabase } from "../supabase";
 import { ScheduleItem, Subject } from "../../types/Schedule";
+import * as Notifications from 'expo-notifications';
+import { scheduleNotification, cancelNotification } from '../../utils/notification';
 
 export const fetchSubjects = async () => {
   const { data } = await supabase.auth.getSession();
@@ -109,6 +111,13 @@ export async function deleteDayFromSubject(item: ScheduleItem) {
 }
 
 export async function deleteEntireSubject(subjectId: string) {
+  const subject = await fetchSubjectById(subjectId);
+  const notificationIds = subject.notification_ids || []; //borra todas las notificaciones asociadas a la asignatura
+
+  for (const id of notificationIds) {
+    await cancelNotification(id);
+  }
+
   const { data, error } = await supabase
     .from('subject')
     .delete()
