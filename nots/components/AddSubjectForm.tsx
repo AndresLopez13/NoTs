@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { StyleSheet, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, Modal } from "react-native";
 import { Text, View, TextInput, Button } from "./Themed";
 import DateTimePicker, {
   EvtTypes,
 } from "@react-native-community/datetimepicker";
+import * as Notifications from 'expo-notifications';
+import { scheduleNotification } from '../utils/notification'; 
 
 interface DaySchedule {
   day: string;
@@ -16,7 +18,8 @@ interface Props {
     name: string,
     nrc: number,
     classroom: string,
-    schedule: DaySchedule[]
+    schedule: DaySchedule[],
+    notification_ids: string[]
   ) => void;
   onClose: () => void;
 }
@@ -44,6 +47,18 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [error, setError] = useState("");
   const [errorModal, setErrorModal] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      console.log(`Estado actual de permisos de notificación: ${status}`);
+      if (status !== 'granted') {
+        console.log('Solicitando permisos de notificación...');
+        const { status: newStatus } = await Notifications.requestPermissionsAsync();
+        console.log(`Nuevo estado de permisos: ${newStatus}`);
+      }
+    })();
+  }, []);
 
   const handleOpenModal = (day: string) => {
     setErrorModal("");
@@ -114,14 +129,23 @@ export default function AddSubjectForm({ onSubmit }: Props) {
     setModalVisible(false);
   };
 
-  const handleAddSubject = () => {
+  const handleAddSubject = async () => {
+
     if (!name || !nrc || !classroom || schedule.length === 0) {
       setError("Todos los campos son obligatorios");
       return;
     }
 
     setError("");
-    onSubmit(name, parseInt(nrc), classroom, schedule);
+
+    try {
+      const notificationsIds = await scheduleNotification(name, classroom, schedule);
+
+      onSubmit(name, parseInt(nrc), classroom, schedule, notificationsIds);
+    } catch (error) {
+      console.error("Error al programar notificaciones:", error);
+      setError("Hubo un problema al programar las notificaciones");
+    }
   };
 
   return (

@@ -1,3 +1,4 @@
+// This code generates a push notification token unique for each device and listens for incoming notifications.
 import { useState, useEffect, useRef } from "react";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
@@ -12,7 +13,7 @@ export interface PushNotificationState {
 export const usePushNotifications = (): PushNotificationState => {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldPlaySound: false,
+      shouldPlaySound: true,
       shouldShowAlert: true,
       shouldSetBadge: false,
     }),
@@ -57,11 +58,11 @@ export const usePushNotifications = (): PushNotificationState => {
         name: "default",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
+        lightColor: "#0c9bbd",
       });
     }
 
-    console.log(token);
+    // console.log(token);
     return token;
   }
 

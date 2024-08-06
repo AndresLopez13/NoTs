@@ -23,6 +23,7 @@ export interface Subject {
     startTime: string;
     endTime: string;
   }[];
+  notification_ids: string[];
 }
 
 export interface WeekScheduleProps {

@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   subjectsContainer: {
-    maxHeight: 400,
+    maxHeight: 1000,
     backgroundColor: 'transparent',
   },
   classItem: {
@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
+    flex: 1, 
   },
 });
 
