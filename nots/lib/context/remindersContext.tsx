@@ -31,30 +31,39 @@ const ReminderContext = createContext<ReminderContextType>({
 
 export function ReminderProvider({ children }: { children: ReactNode }) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const { session } = useUserInfo();
 
-  useEffect(() => {
-    refreshReminders();
-  }, []);
+  if (!session) {
+    return <>{children}</>;
+  }
 
-  const refreshReminders = async () => {
-    const { data } = await supabase.auth.getSession();
-    const { data: reminders, error } = await supabase
-      .from("reminders_with_subjects")
-      .select("*")
-      .eq("user_id", data.session?.user.id!);
+  try {
+    useEffect(() => {
+      refreshReminders();
+    }, []);
 
-    if (error) {
-      console.error("Error fetching reminders:", error);
-    } else {
-      setReminders(reminders);
-    }
-  };
+    const refreshReminders = async () => {
+      const { data } = await supabase.auth.getSession();
+      const { data: reminders, error } = await supabase
+        .from("reminders_with_subjects")
+        .select("*")
+        .eq("user_id", data.session?.user.id!);
 
-  return (
-    <ReminderContext.Provider value={{ reminders, refreshReminders }}>
-      {children}
-    </ReminderContext.Provider>
-  );
+      if (error) {
+        console.error("Error fetching reminders:", error);
+      } else {
+        setReminders(reminders);
+      }
+    };
+
+    return (
+      <ReminderContext.Provider value={{ reminders, refreshReminders }}>
+        {children}
+      </ReminderContext.Provider>
+    );
+  } catch (error) {
+    console.error("Error fetching reminders:", error);
+  }
 }
 
 export function useReminders() {
