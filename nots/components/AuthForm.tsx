@@ -66,7 +66,10 @@ export default function AuthForm({
         onLogin({ email, password });
       } catch (error) {
         if (error.message.includes("Invalid login credentials")) {
-          Alert.alert("Error", "El usuario no se encuentra registrado o las credenciales son incorrectas");
+          Alert.alert(
+            "Error",
+            "El usuario no se encuentra registrado o las credenciales son incorrectas"
+          );
         } else {
           Alert.alert("Error", `Ocurrió un error inesperado: ${error.message}`);
         }
@@ -96,7 +99,7 @@ export default function AuthForm({
           password,
           options: {
             data: { username: email.split("@")[0] },
-          }
+          },
         });
         if (error) throw error;
         Alert.alert(
@@ -108,8 +111,11 @@ export default function AuthForm({
         if (error.message.includes("User already registered")) {
           Alert.alert("Error", "Este correo electrónico ya está registrado");
         } else {
-          console.error('Error en el registro:', error.message);
-          Alert.alert("Error", "Ocurrió un error durante el registro. Por favor, intente nuevamente.");
+          console.error("Error en el registro:", error.message);
+          Alert.alert(
+            "Error",
+            "Ocurrió un error durante el registro. Por favor, intente nuevamente."
+          );
         }
       }
     }
@@ -123,13 +129,20 @@ export default function AuthForm({
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://nextjs-boilerplate-dusky-two-90.vercel.app/reset-password'
+        redirectTo:
+          "https://nextjs-boilerplate-dusky-two-90.vercel.app/reset-password",
       });
       if (error) throw error;
-      Alert.alert("Correo enviado", "Si el correo está registrado, se ha enviado un enlace para restablecer tu contraseña.");
+      Alert.alert(
+        "Correo enviado",
+        "Si el correo está registrado, se ha enviado un enlace para restablecer tu contraseña."
+      );
     } catch (error) {
-      console.error('Error en resetPasswordForEmail:', error.message);
-      Alert.alert("Información", "Si el correo está registrado, se enviará un enlace para restablecer la contraseña.");
+      console.error("Error en resetPasswordForEmail:", error.message);
+      Alert.alert(
+        "Información",
+        "Si el correo está registrado, se enviará un enlace para restablecer la contraseña."
+      );
     }
   };
 
@@ -187,11 +200,7 @@ export default function AuthForm({
               <View style={styles.footer}>
                 {mode === "login" && (
                   <TouchableOpacity onPress={handleForgotPassword}>
-                    <Text
-                      style={[
-                        styles.forgotPasswordText,
-                      ]}
-                    >
+                    <Text style={[styles.forgotPasswordText]}>
                       ¿Olvidaste tu contraseña?
                     </Text>
                   </TouchableOpacity>
@@ -329,12 +338,14 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   forgotPasswordText: {
+    fontFamily: "System",
     fontSize: 14,
     color: "#3897f0",
     marginBottom: 18,
     textDecorationLine: "underline",
   },
   switchText: {
+    fontFamily: "System",
     fontSize: 14,
     color: "#999",
     marginBottom: 8, // Espacio entre texto y botón
