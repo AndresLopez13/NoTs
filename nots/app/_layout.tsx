@@ -72,13 +72,13 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-  
+
   return (
-    <ReminderProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <ReminderProvider>
         <RootLayoutNav />
-      </AuthProvider>
-    </ReminderProvider>
+      </ReminderProvider>
+    </AuthProvider>
   );
 }
 

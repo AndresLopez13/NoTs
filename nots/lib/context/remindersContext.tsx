@@ -31,12 +31,6 @@ const ReminderContext = createContext<ReminderContextType>({
 
 export function ReminderProvider({ children }: { children: ReactNode }) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
-  const { session } = useUserInfo();
-
-  if (!session) {
-    return <>{children}</>;
-  }
-
   try {
     useEffect(() => {
       refreshReminders();
@@ -44,6 +38,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
 
     const refreshReminders = async () => {
       const { data } = await supabase.auth.getSession();
+      if (!data) return;
       const { data: reminders, error } = await supabase
         .from("reminders_with_subjects")
         .select("*")
