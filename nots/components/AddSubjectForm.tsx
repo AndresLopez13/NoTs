@@ -51,11 +51,8 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   useEffect(() => {
     (async () => {
       const { status } = await Notifications.getPermissionsAsync();
-      console.log(`Estado actual de permisos de notificación: ${status}`);
       if (status !== 'granted') {
-        console.log('Solicitando permisos de notificación...');
         const { status: newStatus } = await Notifications.requestPermissionsAsync();
-        console.log(`Nuevo estado de permisos: ${newStatus}`);
       }
     })();
   }, []);
