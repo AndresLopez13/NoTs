@@ -38,16 +38,17 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
 
     const refreshReminders = async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data) return;
-      const { data: reminders, error } = await supabase
-        .from("reminders_with_subjects")
-        .select("*")
-        .eq("user_id", data.session?.user.id!);
+      if (data.session) {
+        const { data: reminders, error } = await supabase
+          .from("reminders_with_subjects")
+          .select("*")
+          .eq("user_id", data.session?.user.id!);
 
-      if (error) {
-        console.error("Error fetching reminders:", error);
-      } else {
-        setReminders(reminders);
+        if (error) {
+          console.error("Error fetching reminders in Supabase:", error);
+        } else {
+          setReminders(reminders);
+        }
       }
     };
 

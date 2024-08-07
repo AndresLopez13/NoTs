@@ -10,6 +10,7 @@ export default function ExamScreen() {
   const exams = reminders.filter((reminder) => reminder.type === "Prueba");
 
   useEffect(() => {
+    refreshReminders();
     supabase
       .channel("reminders_changes")
       .on(
