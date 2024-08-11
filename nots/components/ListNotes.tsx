@@ -1,4 +1,4 @@
-import { Modal, StyleSheet } from "react-native";
+import { Alert, Modal, StyleSheet } from "react-native";
 import { Text, View, TextInput, TouchableOpacity } from "./Themed";
 import { useState } from "react";
 import { deleteReminder, updateReminder } from "@/lib/api";
@@ -30,10 +30,10 @@ export default function ListNotes({ notes, onNoteUpdated }: ListNotesProps) {
       selectedNote.subject_id
     );
     if (!result) {
-      alert("Error al actualizar el apunte");
+      Alert.alert("Error","Error al actualizar el apunte");
       return;
     }
-    alert("Apunte actualizado correctamente");
+    Alert.alert("Apunte actualizado", "El apunte ha sido actualizado con éxito");
     closeModal();
   };
 
@@ -41,13 +41,13 @@ export default function ListNotes({ notes, onNoteUpdated }: ListNotesProps) {
     try {
       const result = await deleteReminder(selectedNote.id);
       if (!result) {
-        alert("Error al eliminar el apunte");
+        Alert.alert("Error","Error al eliminar el apunte");
         return;
       }
-      alert("Apunte eliminado correctamente");
+      Alert.alert("Apunte eliminado", "El apunte ha sido eliminado con éxito");
       onNoteUpdated();
     } catch (e) {
-      alert("Error al eliminar el apunte");
+      Alert.alert("Error","Error al eliminar el apunte");
     }
     closeModal();
   };

@@ -1,5 +1,5 @@
 import "react-native-url-polyfill/auto";
-import { StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 import { supabase } from "../../lib/supabase";
 import AddReminderForm from "@/components/AddReminderForm";
@@ -28,9 +28,9 @@ export default function ReminderScreen() {
       .select();
     if (error) {
       console.log(error);
-      alert("Error al añadir el recordatorio");
+      Alert.alert("Error al añadir el recordatorio", "Ha ocurrido un error al añadir el recordatorio");
     } else {
-      alert("Recordatorio creado");
+      Alert.alert("Recordatorio creado", "El recordatorio ha sido creado con éxito");
     }
   };
 

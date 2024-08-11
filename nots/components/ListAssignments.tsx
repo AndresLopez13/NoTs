@@ -1,4 +1,4 @@
-import { Modal, StyleSheet } from "react-native";
+import { Alert, Modal, StyleSheet } from "react-native";
 import {
   Text,
   View,
@@ -89,10 +89,10 @@ export default function ListAssignments({
       selectedAssignment.time
     );
     if (!result) {
-      alert("Error al actualizar la tarea");
+      Alert.alert("Error","Error al actualizar la tarea");
       return;
     }
-    alert("Tarea actualizada");
+    Alert.alert("Tarea actualizada", "La tarea ha sido actualizada con éxito");
     closeModal();
   };
 
@@ -100,14 +100,14 @@ export default function ListAssignments({
     try {
       const result = await deleteReminder(selectedAssignment.id);
       if (!result) {
-        alert("Error al eliminar la tarea");
+        Alert.alert("Error","Error al eliminar la tarea");
         return;
       }
-      alert("Tarea eliminada");
+      Alert.alert("Tarea eliminada", "La tarea ha sido eliminada con éxito");
       onAssigmentUpdated();
     } catch (error) {
       console.error("Error al eliminar la tarea", error);
-      alert("Error al eliminar");
+      Alert.alert("Error","Error al eliminar la tarea");
     }
 
     closeModal();

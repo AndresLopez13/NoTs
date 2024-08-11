@@ -1,4 +1,4 @@
-import { Modal, StyleSheet } from "react-native";
+import { Alert, Modal, StyleSheet } from "react-native";
 import {
   Text,
   View,
@@ -88,10 +88,10 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
       selectedExam.time
     );
     if (!result) {
-      alert("Error al actualizar examen");
+      Alert.alert("Error al actualizar examen", "Ha ocurrido un error al actualizar el examen");
       return;
     }
-    alert("Examen actualizado");
+    Alert.alert("Examen actualizado", "El examen ha sido actualizado con éxito");
     closeModal();
   };
 
@@ -99,12 +99,12 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
     try {
       const result = await deleteReminder(selectedExam.id);
       if (!result) {
-        alert("Error al eliminar examen");
+        Alert.alert("Error al eliminar examen", "Ha ocurrido un error al eliminar el examen");
       }
-      alert("Examen eliminado");
+      Alert.alert("Examen eliminado", "El examen ha sido eliminado con éxito");
       onExamUpdated();
     } catch (error) {
-      alert("Error al eliminar examen");
+      Alert.alert("Error al eliminar examen", "Ha ocurrido un error al eliminar el examen");
       console.error("Error deleting exam: ", error);
     }
     closeModal();

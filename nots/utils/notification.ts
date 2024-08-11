@@ -1,13 +1,13 @@
 import * as Notifications from 'expo-notifications';
 
-const daysOfWeek = [
+const days = [
+  "Domingo",
   "Lunes",
   "Martes",
   "Miércoles",
   "Jueves",
   "Viernes",
   "Sábado",
-  "Domingo",
 ];
 
 interface DaySchedule {
@@ -29,7 +29,7 @@ export const scheduleNotification = async (name: string, classroom: string, sche
 
   for (const day of schedule) {
     const [hours, minutes] = day.startTime.split(':').map(Number);
-    const weekday = daysOfWeek.indexOf(day.day) + 2; // 1 es domingo
+    const weekday = days.indexOf(day.day) + 1; // 1 es Domingo
     let notificationHour = hours;
     let notificationMinute = minutes - 15;
 
