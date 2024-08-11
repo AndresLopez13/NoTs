@@ -28,7 +28,7 @@ export default function ReminderScreen() {
       .select();
     if (error) {
       console.log(error);
-      alert("Error al añadir tarea");
+      alert("Error al añadir el recordatorio");
     } else {
       alert("Recordatorio creado");
     }

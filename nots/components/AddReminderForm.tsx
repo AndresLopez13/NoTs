@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Text, View, TextInput, Button } from "./Themed";
 import DateTimePicker, {
@@ -43,12 +48,13 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
     setDatePickerVisibility(true);
   };
 
-  const showTimePicker = () => {
+  const showTimePicker = (event: any) => {
+    event.preventDefault();
     setTimePickerVisibility(true);
   };
 
   const hideDatePicker = () => {
-    setDatePickerVisibility(false);
+    setDatePickerVisibility(Platform.OS === "ios" ? true : false);
   };
 
   const hideTimePicker = () => {
@@ -62,13 +68,13 @@ export default function AddAssignmentForm({ onSubmit }: Props) {
     },
     selectedDate: Date | undefined
   ) => {
-    setDate(selectedDate as Date);
     hideDatePicker();
+    setDate(selectedDate as Date);
   };
 
   const handleConfirmTime = (selectedTime) => {
-    setTime(selectedTime);
     hideTimePicker();
+    setTime(selectedTime);
   };
 
   const formatDate = (date) => {

@@ -76,7 +76,7 @@ export default function MenuScreen() {
       .on(
         "postgres_changes",
         {
-          event: "UPDATE",
+          event: "*",
           schema: "public",
           table: "subject",
         },

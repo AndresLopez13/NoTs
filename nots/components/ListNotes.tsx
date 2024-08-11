@@ -1,111 +1,53 @@
 import { Modal, StyleSheet } from "react-native";
-import {
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  useThemeColor,
-} from "./Themed";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { Text, View, TextInput, TouchableOpacity } from "./Themed";
 import { useState } from "react";
 import { deleteReminder, updateReminder } from "@/lib/api";
 import { ScrollView } from "react-native-gesture-handler";
 import { Reminder } from "@/lib/context/remindersContext";
 
-interface ListExamsProps {
-  exams: Reminder[];
-  onExamUpdated: () => void;
+interface ListNotesProps {
+  notes: Reminder[];
+  onNoteUpdated: () => void;
 }
 
-export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
+export default function ListNotes({ notes, onNoteUpdated }: ListNotesProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedExam, setSelectedExam] = useState(null);
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const iconColor = useThemeColor(
-    { light: "#4a4a4a", dark: "#dfdfdf" },
-    "text"
-  );
-
+  const [selectedNote, setSelectedNote] = useState(null);
   const maxLength = 100;
-  console.log(exams);
-
-  const openModal = (exam) => {
-    setSelectedExam(exam);
-    setDate(new Date(exam.date.replace(/\//g, "-") + "T00:00:00"));
-    setTime(new Date(`1970-01-01T${exam.time}:00`));
+  const openModal = (note) => {
+    setSelectedNote(note);
     setModalVisible(true);
   };
-
   const closeModal = () => {
     setModalVisible(false);
   };
-
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setDate(currentDate);
-    setSelectedExam({
-      ...selectedExam,
-      date: currentDate.toISOString().split("T")[0],
-    });
-  };
-
-  const onTimeChange = (event, selectedTime) => {
-    const currentTime = selectedTime || time;
-    setShowTimePicker(false);
-    setTime(currentTime);
-    setSelectedExam({
-      ...selectedExam,
-      time: formatTime(currentTime),
-    });
-  };
-
-  const formatTime = (time) => {
-    const hours = time.getHours().toString().padStart(2, "0");
-    const minutes = time.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
-  };
-
-  const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  const handleEditExam = async () => {
+  const handleEditNotes = async () => {
     const result = await updateReminder(
-      "Prueba",
-      selectedExam.name,
-      selectedExam.description,
-      selectedExam.id,
-      selectedExam.subject_id,
-      selectedExam.date,
-      selectedExam.time
+      "Apunte",
+      selectedNote.name,
+      selectedNote.description,
+      selectedNote.id,
+      selectedNote.subject_id
     );
     if (!result) {
-      alert("Error al actualizar examen");
+      alert("Error al actualizar el apunte");
       return;
     }
-    alert("Examen actualizado");
+    alert("Apunte actualizado correctamente");
     closeModal();
   };
 
-  const handleDeleteExam = async () => {
+  const handleDeleteNotes = async () => {
     try {
-      const result = await deleteReminder(selectedExam.id);
+      const result = await deleteReminder(selectedNote.id);
       if (!result) {
-        alert("Error al eliminar examen");
+        alert("Error al eliminar el apunte");
+        return;
       }
-      alert("Examen eliminado");
-      onExamUpdated();
-    } catch (error) {
-      alert("Error al eliminar examen");
-      console.error("Error deleting exam: ", error);
+      alert("Apunte eliminado correctamente");
+      onNoteUpdated();
+    } catch (e) {
+      alert("Error al eliminar el apunte");
     }
     closeModal();
   };
@@ -113,35 +55,21 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        {exams.map((exam) => (
+        {notes.map((note) => (
           <TouchableOpacity
-            key={exam.id}
+            key={note.id}
             style={styles.examContainer}
-            onPress={() => openModal(exam)}
+            onPress={() => openModal(note)}
           >
-            <Text style={styles.subjectName}>{exam.subject_name}</Text>
-            <Text style={styles.examName}>Nombre: {exam.name}</Text>
+            <Text style={styles.subjectName}>{note.subject_name}</Text>
+            <Text style={styles.examName}>Nombre: {note.name}</Text>
             <Text style={styles.examDescription}>
-              Descripción: {exam.description.slice(0, 60)}...
+              Descripción: {note.description.slice(0, 60)}...
             </Text>
-            <View style={styles.dateTimeContainer}>
-              <MaterialCommunityIcons
-                name="calendar"
-                size={24}
-                color={iconColor}
-              />
-              <Text style={styles.dateTimeText}>
-                {formatDate(
-                  new Date(`${exam.date.replace(/\//g, "-")}T00:00:00`)
-                )}
-              </Text>
-              <MaterialIcons name="access-time" size={24} color={iconColor} />
-              <Text style={styles.dateTimeText}>{exam.time}</Text>
-            </View>
           </TouchableOpacity>
         ))}
 
-        {selectedExam && (
+        {selectedNote && (
           <Modal
             animationType="fade"
             transparent={true}
@@ -163,62 +91,27 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
                 <TextInput
                   style={styles.input}
                   onChangeText={(text) =>
-                    setSelectedExam({ ...selectedExam, name: text })
+                    setSelectedNote({ ...selectedNote, name: text })
                   }
-                  value={selectedExam.name}
+                  value={selectedNote.name}
                 />
                 <Text style={styles.modalHintText}>Descripción</Text>
                 <TextInput
                   style={[styles.input, styles.descriptionInput]}
                   onChangeText={(text) =>
-                    setSelectedExam({ ...selectedExam, description: text })
+                    setSelectedNote({ ...selectedNote, description: text })
                   }
-                  value={selectedExam.description}
+                  value={selectedNote.description}
                   multiline={true}
                   maxLength={100}
                   textAlignVertical="top"
                 />
                 <Text style={styles.counter}>
-                  {`${selectedExam.description.length}/${maxLength}`}
+                  {`${selectedNote.description.length}/${maxLength}`}
                 </Text>
-                <Text style={styles.modalHintText}>Fecha y Hora</Text>
-                <View style={styles.dateTimeInputContainer}>
-                  <MaterialCommunityIcons
-                    name="calendar"
-                    size={24}
-                    color={iconColor}
-                  />
-                  <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                    <Text style={styles.dateTimeText}>{formatDate(date)}</Text>
-                  </TouchableOpacity>
-                  {showDatePicker && (
-                    <DateTimePicker
-                      value={date}
-                      mode="date"
-                      display="calendar"
-                      onChange={onDateChange}
-                    />
-                  )}
-                  <MaterialIcons
-                    name="access-time"
-                    size={24}
-                    color={iconColor}
-                  />
-                  <TouchableOpacity onPress={() => setShowTimePicker(true)}>
-                    <Text style={styles.dateTimeText}>{formatTime(time)}</Text>
-                  </TouchableOpacity>
-                  {showTimePicker && (
-                    <DateTimePicker
-                      value={time}
-                      mode="time"
-                      display="spinner"
-                      onChange={onTimeChange}
-                    />
-                  )}
-                </View>
                 <View style={styles.buttonContainerModal}>
                   <TouchableOpacity
-                    onPress={handleEditExam}
+                    onPress={handleEditNotes}
                     style={styles.buttonContainer}
                   >
                     <Text style={[styles.buttonText, { color: "green" }]}>
@@ -226,7 +119,7 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={handleDeleteExam}
+                    onPress={handleDeleteNotes}
                     style={styles.buttonContainer}
                   >
                     <Text style={[styles.buttonText, { color: "red" }]}>

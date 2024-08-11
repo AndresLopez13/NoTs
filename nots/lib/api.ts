@@ -32,11 +32,29 @@ export const updateReminder = async (
   type: string,
   name: string,
   description: string,
+  reminder_id: string,
+  subject_id: string,
   date?: string,
-  time?: string,
-  subject_id?: string,
-  reminder_id?: string
+  time?: string
 ) => {
+  if (!date || !time) {
+    const { error } = await supabase
+      .from("reminders")
+      .update({
+        type,
+        name,
+        description,
+        subject_id,
+      })
+      .eq("id", reminder_id);
+    if (error) {
+      console.log(reminder_id);
+      console.log(error.message);
+      return false;
+    }
+    return true;
+  }
+
   const { error } = await supabase
     .from("reminders")
     .update({
@@ -48,6 +66,18 @@ export const updateReminder = async (
       subject_id,
     })
     .eq("id", reminder_id!);
+  if (error) {
+    console.log(error);
+    return false;
+  }
+  return true;
+};
+
+export const deleteReminder = async (reminder_id: string) => {
+  const { error } = await supabase
+    .from("reminders")
+    .delete()
+    .eq("id", reminder_id);
   if (error) {
     return false;
   }

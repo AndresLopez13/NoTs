@@ -4,8 +4,8 @@ import { Text, View, TextInput, Button } from "./Themed";
 import DateTimePicker, {
   EvtTypes,
 } from "@react-native-community/datetimepicker";
-import * as Notifications from 'expo-notifications';
-import { scheduleNotification } from '../utils/notification'; 
+import * as Notifications from "expo-notifications";
+import { scheduleNotification } from "../utils/notification";
 
 interface DaySchedule {
   day: string;
@@ -51,11 +51,22 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   useEffect(() => {
     (async () => {
       const { status } = await Notifications.getPermissionsAsync();
-      if (status !== 'granted') {
-        const { status: newStatus } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        const { status: newStatus } =
+          await Notifications.requestPermissionsAsync();
       }
     })();
   }, []);
+
+  const handleShowStartTimePicker = (event: any) => {
+    event.preventDefault();
+    setShowStartTimePicker(!showStartTimePicker);
+  };
+
+  const handleShowEndTimePicker = (event: any) => {
+    event.preventDefault();
+    setShowEndTimePicker(!showEndTimePicker);
+  };
 
   const handleOpenModal = (day: string) => {
     setErrorModal("");
@@ -82,11 +93,11 @@ export default function AddSubjectForm({ onSubmit }: Props) {
     const currentDate =
       selectedDate || (type === "start" ? startTime : endTime);
     if (type === "start") {
-      setStartTime(currentDate);
       setShowStartTimePicker(false);
+      setStartTime(currentDate);
     } else {
-      setEndTime(currentDate);
       setShowEndTimePicker(false);
+      setEndTime(currentDate);
     }
   };
 
@@ -127,7 +138,6 @@ export default function AddSubjectForm({ onSubmit }: Props) {
   };
 
   const handleAddSubject = async () => {
-
     if (!name || !nrc || !classroom || schedule.length === 0) {
       setError("Todos los campos son obligatorios");
       return;
@@ -136,7 +146,11 @@ export default function AddSubjectForm({ onSubmit }: Props) {
     setError("");
 
     try {
-      const notificationsIds = await scheduleNotification(name, classroom, schedule);
+      const notificationsIds = await scheduleNotification(
+        name,
+        classroom,
+        schedule
+      );
 
       onSubmit(name, parseInt(nrc), classroom, schedule, notificationsIds);
     } catch (error) {
@@ -216,7 +230,7 @@ export default function AddSubjectForm({ onSubmit }: Props) {
               <Text style={styles.timeLabel}>Hora de inicio:</Text>
               <TouchableOpacity
                 style={styles.timeValue}
-                onPress={() => setShowStartTimePicker(true)}
+                onPress={handleShowStartTimePicker}
               >
                 <Text>{startTime.toTimeString().substring(0, 5)}</Text>
               </TouchableOpacity>
@@ -235,7 +249,7 @@ export default function AddSubjectForm({ onSubmit }: Props) {
               <Text style={styles.timeLabel}>Hora de fin:</Text>
               <TouchableOpacity
                 style={styles.timeValue}
-                onPress={() => setShowEndTimePicker(true)}
+                onPress={handleShowEndTimePicker}
               >
                 <Text>{endTime.toTimeString().substring(0, 5)}</Text>
               </TouchableOpacity>

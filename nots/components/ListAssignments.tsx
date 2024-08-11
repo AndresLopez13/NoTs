@@ -8,19 +8,22 @@ import {
 } from "./Themed";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deleteReminder, updateReminder } from "@/lib/api";
 import { ScrollView } from "react-native-gesture-handler";
 import { Reminder } from "@/lib/context/remindersContext";
 
-interface ListExamsProps {
-  exams: Reminder[];
-  onExamUpdated: () => void;
+interface ListAssignmentsProps {
+  assignments: Reminder[];
+  onAssigmentUpdated: () => void;
 }
 
-export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
+export default function ListAssignments({
+  assignments,
+  onAssigmentUpdated,
+}: ListAssignmentsProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedExam, setSelectedExam] = useState(null);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -31,12 +34,10 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
   );
 
   const maxLength = 100;
-  console.log(exams);
-
-  const openModal = (exam) => {
-    setSelectedExam(exam);
-    setDate(new Date(exam.date.replace(/\//g, "-") + "T00:00:00"));
-    setTime(new Date(`1970-01-01T${exam.time}:00`));
+  const openModal = (assignment) => {
+    setSelectedAssignment(assignment);
+    setDate(new Date(assignment.date.replace(/\//g, "-") + "T00:00:00"));
+    setTime(new Date(`1970-01-01T${assignment.time}:00`));
     setModalVisible(true);
   };
 
@@ -48,8 +49,8 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
-    setSelectedExam({
-      ...selectedExam,
+    setSelectedAssignment({
+      ...selectedAssignment,
       date: currentDate.toISOString().split("T")[0],
     });
   };
@@ -58,8 +59,8 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
     const currentTime = selectedTime || time;
     setShowTimePicker(false);
     setTime(currentTime);
-    setSelectedExam({
-      ...selectedExam,
+    setSelectedAssignment({
+      ...selectedAssignment,
       time: formatTime(currentTime),
     });
   };
@@ -77,52 +78,54 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
     return `${day}/${month}/${year}`;
   };
 
-  const handleEditExam = async () => {
+  const handleEditTask = async () => {
     const result = await updateReminder(
-      "Prueba",
-      selectedExam.name,
-      selectedExam.description,
-      selectedExam.id,
-      selectedExam.subject_id,
-      selectedExam.date,
-      selectedExam.time
+      "Tarea",
+      selectedAssignment.name,
+      selectedAssignment.description,
+      selectedAssignment.id,
+      selectedAssignment.subject_id,
+      selectedAssignment.date,
+      selectedAssignment.time
     );
     if (!result) {
-      alert("Error al actualizar examen");
+      alert("Error al actualizar la tarea");
       return;
     }
-    alert("Examen actualizado");
+    alert("Tarea actualizada");
     closeModal();
   };
 
-  const handleDeleteExam = async () => {
+  const handleDeleteTask = async () => {
     try {
-      const result = await deleteReminder(selectedExam.id);
+      const result = await deleteReminder(selectedAssignment.id);
       if (!result) {
-        alert("Error al eliminar examen");
+        alert("Error al eliminar la tarea");
+        return;
       }
-      alert("Examen eliminado");
-      onExamUpdated();
+      alert("Tarea eliminada");
+      onAssigmentUpdated();
     } catch (error) {
-      alert("Error al eliminar examen");
-      console.error("Error deleting exam: ", error);
+      console.error("Error al eliminar la tarea", error);
+      alert("Error al eliminar");
     }
+
     closeModal();
   };
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        {exams.map((exam) => (
+        {assignments.map((assignment) => (
           <TouchableOpacity
-            key={exam.id}
+            key={assignment.id}
             style={styles.examContainer}
-            onPress={() => openModal(exam)}
+            onPress={() => openModal(assignment)}
           >
-            <Text style={styles.subjectName}>{exam.subject_name}</Text>
-            <Text style={styles.examName}>Nombre: {exam.name}</Text>
+            <Text style={styles.subjectName}>{assignment.subject_name}</Text>
+            <Text style={styles.examName}>Nombre: {assignment.name}</Text>
             <Text style={styles.examDescription}>
-              Descripción: {exam.description.slice(0, 60)}...
+              Descripción: {assignment.description.slice(0, 60)}...
             </Text>
             <View style={styles.dateTimeContainer}>
               <MaterialCommunityIcons
@@ -132,16 +135,16 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
               />
               <Text style={styles.dateTimeText}>
                 {formatDate(
-                  new Date(`${exam.date.replace(/\//g, "-")}T00:00:00`)
+                  new Date(`${assignment.date.replace(/\//g, "-")}T00:00:00`)
                 )}
               </Text>
               <MaterialIcons name="access-time" size={24} color={iconColor} />
-              <Text style={styles.dateTimeText}>{exam.time}</Text>
+              <Text style={styles.dateTimeText}>{assignment.time}</Text>
             </View>
           </TouchableOpacity>
         ))}
 
-        {selectedExam && (
+        {selectedAssignment && (
           <Modal
             animationType="fade"
             transparent={true}
@@ -163,23 +166,26 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
                 <TextInput
                   style={styles.input}
                   onChangeText={(text) =>
-                    setSelectedExam({ ...selectedExam, name: text })
+                    setSelectedAssignment({ ...selectedAssignment, name: text })
                   }
-                  value={selectedExam.name}
+                  value={selectedAssignment.name}
                 />
                 <Text style={styles.modalHintText}>Descripción</Text>
                 <TextInput
                   style={[styles.input, styles.descriptionInput]}
                   onChangeText={(text) =>
-                    setSelectedExam({ ...selectedExam, description: text })
+                    setSelectedAssignment({
+                      ...selectedAssignment,
+                      description: text,
+                    })
                   }
-                  value={selectedExam.description}
+                  value={selectedAssignment.description}
                   multiline={true}
                   maxLength={100}
                   textAlignVertical="top"
                 />
                 <Text style={styles.counter}>
-                  {`${selectedExam.description.length}/${maxLength}`}
+                  {`${selectedAssignment.description.length}/${maxLength}`}
                 </Text>
                 <Text style={styles.modalHintText}>Fecha y Hora</Text>
                 <View style={styles.dateTimeInputContainer}>
@@ -218,7 +224,7 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
                 </View>
                 <View style={styles.buttonContainerModal}>
                   <TouchableOpacity
-                    onPress={handleEditExam}
+                    onPress={handleEditTask}
                     style={styles.buttonContainer}
                   >
                     <Text style={[styles.buttonText, { color: "green" }]}>
@@ -226,7 +232,7 @@ export default function ListExams({ exams, onExamUpdated }: ListExamsProps) {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={handleDeleteExam}
+                    onPress={handleDeleteTask}
                     style={styles.buttonContainer}
                   >
                     <Text style={[styles.buttonText, { color: "red" }]}>

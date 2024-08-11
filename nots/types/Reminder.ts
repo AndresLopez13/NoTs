@@ -3,8 +3,8 @@ export interface Reminder {
   type: string;
   name: string;
   description: string;
-  date: string;
-  time: string;
+  date?: string;
+  time?: string;
   user_id: string;
   subject_id: string;
 }
